@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Landside Ops Schedule</title>
+<meta name="theme-color" content="#0E2A47">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Landside">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0E2A47; --navy2:#173B61; --bg:#F3F5F8; --card:#fff; --ink:#14202E; --muted:#66758A;
+    --line:#DDE3EA; --red:#C8282E; --redbg:#FDECEC;
+    --D:#BDD7EE; --Dk:#2F6A9E; --S:#FFE45C; --Sk:#7A6300; --N:#CBC3EC; --Nk:#4B3F8F; --leave:#E7EAEE;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1,"cv11" 1}
+  button,input,select{font-family:inherit}
+  [hidden]{display:none!important}
+  /* ----- sign-in screen ----- */
+  .auth{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px calc(24px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,var(--navy) 0,var(--navy) 42%,var(--bg) 42%)}
+  .auth .card{width:100%;max-width:400px;padding:30px 28px 24px;border:0;border-radius:16px;box-shadow:0 18px 50px rgba(14,42,71,.22),0 2px 6px rgba(14,42,71,.08)}
+  .auth .logo{display:block;height:38px;width:auto;margin:0 auto 18px}
+  .auth h1{font-size:21px;font-weight:800;letter-spacing:-.2px;margin:0;text-align:center;color:var(--navy)}
+  .auth .sub{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 22px}
+  .auth .f{margin-bottom:14px}
+  .auth label{font-size:12.5px;color:#3E4C5E}
+  .auth input{padding:11px 12px;font-size:15px;border-radius:10px;border-color:#CFD7E1}
+  .auth input:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(23,59,97,.15)}
+  .auth .btn.primary{width:100%;padding:12px;font-size:15px;border-radius:10px;margin-top:4px}
+  .auth .note{font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.45;text-align:center}
+  .auth .demo{background:#F4F7FB;border:1px solid #E1E8F0;border-radius:10px;padding:9px 11px;font-size:12px;color:#3E4C5E;margin-top:14px;line-height:1.5}
+  .auth .foot{margin-top:18px;max-width:400px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.5}
+  .auth .foot p,.appfoot p{margin:0 0 4px}
+  .auth .foot a,.appfoot a{color:var(--navy2);font-weight:600;text-decoration:none}
+  .auth .foot a:hover,.appfoot a:hover{text-decoration:underline}
+  .appfoot{max-width:1180px;margin:8px auto 0;padding:14px 16px 24px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.5}
+  @media (max-width:700px){.appfoot{padding-bottom:calc(90px + env(safe-area-inset-bottom))}}
+  /* ----- app header ----- */
+  header.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;padding-top:env(safe-area-inset-top)}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1180px;margin:0 auto;padding:10px 16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand .logo{height:26px;width:auto;display:block}
+  .brand .div{width:1px;height:26px;background:var(--line)}
+  .brand .t{font-weight:700;font-size:15px;color:var(--navy);white-space:nowrap;line-height:1.2;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .brand .t small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+  .userbox{display:flex;align-items:center;gap:10px}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none}
+  .uname{font-size:13px;font-weight:600;line-height:1.2;text-align:right}
+  .uname small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+  .iconbtn{background:none;border:1px solid var(--line);border-radius:8px;height:32px;padding:0 10px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--ink);font:600 12.5px Inter,system-ui}
+  .iconbtn:hover{background:#F4F6F9}
+  nav.tabs{background:#fff;border-bottom:1px solid var(--line)}
+  nav.tabs .in{display:flex;gap:4px;max-width:1180px;margin:0 auto;padding:0 10px;overflow-x:auto}
+  nav.tabs button{background:none;border:0;color:var(--muted);font:600 14px Inter,system-ui;padding:12px 12px 10px;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px}
+  nav.tabs button svg{width:17px;height:17px;flex:none}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button.on{color:var(--navy);border-bottom-color:var(--navy)}
+  main{max-width:1180px;margin:0 auto;padding:16px 12px 70px}
+  @media (max-width:700px){
+    .brand .t small,.uname,.brand .div,.userbox .avatar{display:none}
+    .hrow{padding-top:9px;padding-bottom:9px}
+    .brand .logo{height:22px}
+    .brand .t{font-size:14px}
+    .iconbtn span{display:none}
+    nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;border-top:1px solid var(--line);border-bottom:0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(14,42,71,.06)}
+    nav.tabs .in{justify-content:space-around;padding:0;gap:0}
+    nav.tabs button{flex:1;flex-direction:column;gap:3px;font-size:10.5px;padding:8px 2px 7px;border-bottom:0;border-top:2.5px solid transparent;position:relative}
+    nav.tabs button.on{border-top-color:var(--navy);border-bottom-color:transparent}
+    nav.tabs button svg{width:21px;height:21px}
+    nav.tabs .badge{position:absolute;top:4px;left:calc(50% + 6px);margin:0}
+    main{padding-bottom:16px}
+  }
+  .banner{background:#FFF6D6;border:1px solid #F0DC94;color:#6B5600;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:12px}
+  .cards{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;margin-bottom:16px}
+  @media (max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card h3{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .sl{display:flex;align-items:flex-start;gap:10px;padding:7px 0}
+  .sl + .sl{border-top:1px dashed var(--line)}
+  .tag{display:inline-block;min-width:54px;text-align:center;font:700 12px system-ui;padding:4px 8px;border-radius:6px}
+  .tag.D{background:var(--D);color:var(--Dk)} .tag.S{background:var(--S);color:var(--Sk)} .tag.N{background:var(--N);color:var(--Nk)} .tag.L{background:var(--leave);color:var(--muted)}
+  .time{font-size:12px;color:var(--muted);margin-top:3px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px}
+  .chip{font-size:13px;font-weight:600;background:#EEF2F7;border:1px solid #DCE3EC;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .chip small{font-weight:500;color:var(--muted);margin-left:3px}
+  .chip.me{background:var(--navy);border-color:var(--navy);color:#fff}
+  .chip.me small{color:#C9D7E6}
+  .gap{color:var(--red);background:var(--redbg);font-weight:700;font-size:12px;padding:3px 8px;border-radius:6px;display:inline-block}
+  .muted{color:var(--muted);font-size:13px}
+  .btn{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 12px;font:600 13px system-ui;color:var(--ink);cursor:pointer}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn.danger{color:var(--red)}
+  .btn.sm{padding:4px 9px;font-size:12px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:#fff;font:600 12px system-ui;padding:7px 10px;cursor:pointer;color:var(--muted)}
+  .seg button.on{background:var(--navy);color:#fff}
+  .ppnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+  .ppnav h2{font-size:16px;margin:0}
+  .ppnav h2 small{font-weight:500;color:var(--muted);font-size:13px;margin-left:6px}
+  /* schedule grid */
+  .gridwrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
+  table.sch{border-collapse:separate;border-spacing:0;width:100%;font-size:12px}
+  .sch th,.sch td{border-right:1px solid #E6EAF0;border-bottom:1px solid #E6EAF0;text-align:center;padding:0;height:32px;min-width:34px}
+  .sch .nm{position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:0 10px;font-weight:600;font-size:13px;min-width:96px;white-space:nowrap;box-shadow:1px 0 0 #DDE3EA}
+  .sch thead th{background:#F7F9FB;color:var(--muted);font-weight:700;position:sticky;top:0}
+  .sch thead .nm{background:#F7F9FB;z-index:3}
+  .sch thead .pp{color:var(--ink);font-size:12px;letter-spacing:.3px;border-bottom:1px solid #D3DAE3;text-align:left;padding-left:10px;height:26px}
+  .sch thead .dt b{display:block;color:var(--ink);font-size:13px}
+  .sch th.hol{background:#FDEFEF;color:var(--red)} .sch th.hol b{color:var(--red)}
+  .sch .today{box-shadow:inset 2px 0 0 var(--navy),inset -2px 0 0 var(--navy)}
+  .sch thead th.today{background:var(--navy);color:#C9D7E6} .sch thead th.today b{color:#fff}
+  .sch .grp td{background:#EDF1F6;text-align:left;padding:0 10px;font-weight:700;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--navy2);position:sticky;left:0;height:26px}
+  .sch td.c{cursor:default;font-weight:700;font-size:11px}
+  .sch td.c.ed{cursor:pointer}
+  .sch td.c.ed:hover{outline:2px solid #7FB2E5;outline-offset:-2px}
+  .sch td.past,.sch th.past{opacity:.38}
+  .sch td.D{background:var(--D);color:var(--Dk)} .sch td.S{background:var(--S);color:var(--Sk)} .sch td.N{background:var(--N);color:var(--Nk)}
+  .sch td.L{background:repeating-linear-gradient(135deg,#EEF0F3 0 4px,#E3E6EB 4px 8px);color:#3E4A5B;font-size:10px}
+  .sch td.x{position:relative} .sch td.x::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#14202E;opacity:.55}
+  .trb{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:#FFF1D6;color:#8A5A00;border-radius:4px;padding:1px 4px;vertical-align:1px}
+  .tbd{font-size:10px;font-weight:500;color:var(--muted)}
+  .sch tr.me .nm{color:var(--navy);background:#EEF4FB}
+  .sch tr.otrow td{height:30px;background:#FFFBF2;border-top:2px solid #E9C46A}
+  .sch tr.otrow .nm{font-weight:800;color:#8A5A00;background:#FFF4DC;letter-spacing:.5px}
+  .sch tr.otrow td.ot{background:#F59E0B;color:#fff;font-weight:800;font-size:11px;cursor:pointer}
+  .sch tr.otrow td.otadd{cursor:pointer}
+  .sch tr.otrow td.otadd:hover::after{content:"+";color:#C98F00;font-weight:800}
+  .sch tr.otrow td.ot.otf{background:#DDF3E6;color:#16693F}
+  .sch tr.otrow td.ot.pend{background:#FDE7B5;color:#8A5A00;outline:2px dashed #D08A00;outline-offset:-3px}
+  .sch tr.cov td{height:24px;font-size:11px;font-weight:700;color:var(--muted);background:#FAFBFC}
+  .sch tr.cov td.zero{color:var(--red);background:var(--redbg)}
+  .sch tr.cov .nm{font-weight:600;font-size:11px;color:var(--muted);background:#FAFBFC}
+  .legend{font-size:12px;color:var(--muted);margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .sw{display:inline-block;width:16px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(14,26,40,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+  @media (min-width:700px){.scrim{align-items:center}}
+  .sheet{background:#fff;width:100%;max-width:440px;border-radius:16px 16px 0 0;padding:16px 16px max(18px,env(safe-area-inset-bottom))}
+  @media (min-width:700px){.sheet{border-radius:16px}}
+  .sheet h3{margin:0 0 2px;font-size:17px}
+  .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+  .opt{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font:600 13px system-ui;cursor:pointer;color:var(--ink)}
+  .opt.on{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+  .opt.D{background:var(--D)} .opt.S{background:var(--S)} .opt.N{background:var(--N)}
+  .olabel{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
+  /* forms */
+  label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+  input,select{font:15px system-ui;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);width:100%}
+  input[type=checkbox]{width:auto}
+  .form{max-width:360px;margin:30px auto}
+  .form .f{margin-bottom:12px}
+  table.t{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:14px}
+  .t th,.t td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .t th{background:#F7F9FB;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .t td input,.t td select{padding:6px 8px;font-size:14px}
+  .sect{margin:24px 0 8px;font-size:15px}
+  table.people{border:0;background:none}
+  .hrsed{margin-top:6px}
+  .logbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  table.log td{font-size:13px} table.log .nowrap{white-space:nowrap;color:var(--muted)}
+  .trainrow{display:flex;gap:6px;align-items:flex-end;margin-top:8px;flex-wrap:wrap}
+  .trainrow label.mini{margin:0;font-size:11px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+  .trainrow select{width:auto;min-width:80px}
+  .trainrow input[type=date]{width:auto;padding:6px 8px;font-size:14px}
+  .hrsrow{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}
+  .hrsrow select{width:auto;min-width:96px}
+  .hrsrow label.mini{margin:0;font-size:11px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+  .hrsrow input[type=time]{width:auto;padding:6px 8px;font-size:14px}
+  .hrsnote{font-size:11.5px;color:var(--muted);margin-top:4px}
+  .hrsnote:empty{display:none}
+  table.people tbody.person{background:#fff;border:1px solid var(--line);box-shadow:0 1px 2px rgba(14,42,71,.04)}
+  table.people tbody.person + tbody.person{border-top:14px solid var(--bg)}
+  table.people tbody.person tr:first-child td{border-bottom:1px dashed var(--line);padding-top:12px}
+  table.people tbody.person tr:first-child td:first-child{border-left:4px solid var(--navy)}
+  table.people tbody.person tr:last-child td{border-bottom:0;padding-bottom:12px;background:#FAFBFD}
+  table.people tbody.person tr:last-child td:first-child{border-left:4px solid var(--navy)}
+  table.people thead th{background:none;border-bottom:0}
+  .scroll{overflow-x:auto}
+  .pat{display:grid;justify-content:start;grid-template-columns:44px repeat(7,50px);gap:3px;align-items:center;font-size:11px;color:var(--muted)}
+  .pat select{padding:4px 2px;font-size:13px;text-align:center}
+  .pat select.D{background:var(--D)} .pat select.S{background:var(--S)} .pat select.N{background:var(--N)}
+  .sch td.pend{background-image:repeating-linear-gradient(135deg,rgba(232,150,0,.38) 0 4px,rgba(255,255,255,.0) 4px 8px)!important;outline:2px dashed #D08A00;outline-offset:-3px;color:#7A4D00;font-style:italic}
+  .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:#E5484D;color:#fff;font-size:11px;line-height:18px;text-align:center}
+  .st{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-radius:5px;padding:2px 7px}
+  .st.pending{background:#FFF1D6;color:#8A5A00} .st.approved{background:#DDF3E6;color:#16693F} .st.denied{background:var(--redbg);color:var(--red)} .st.cancelled{background:#EEF0F3;color:var(--muted)}
+  .req{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .req .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+  .req .what{font-weight:700;font-size:15px}
+  .req .days{font-size:12px;color:var(--muted);margin-top:4px}
+  .otnew{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+  .queue{margin:4px 0 0;padding-left:20px;font-size:13px}
+  .queue li{padding:4px 0}
+  .queue li .btn,.queue li .warn{margin-left:8px}
+  .warn{color:var(--red);font-size:12px;font-weight:600;margin-top:6px}
+  .okc{color:#16693F;font-size:12px;margin-top:6px}
+  .rform{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+  .preview{font-size:13px;margin-top:10px;color:var(--ink)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:30}
+  .toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+<div id="auth" class="auth" hidden></div>
+<div id="shell" hidden>
+  <header class="top"><div class="hrow">
+    <div class="brand"><img class="logo" src="lawa-logo.png" alt="LAWA | LAX" onerror="this.nextElementSibling.remove();this.remove()"><span class="div"></span>
+      <div class="t">Landside Ops Schedule<small>LAX Landside Operations</small></div></div>
+    <div class="userbox" id="who"></div>
+  </div></header>
+  <nav class="tabs"><div class="in" id="tabs"></div></nav>
+  <main id="app"></main>
+  <footer class="appfoot" id="appfoot"></footer>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script type="module">
+// =====================================================================
+//  CONFIG — paste your Supabase project URL and anon (public) key.
+//  Leave empty to run in DEMO mode (spreadsheet data, saved on this device only).
+// =====================================================================
+const CONFIG = {
+  SUPABASE_URL: 'https://jnbkhmzbjzzmbcqyzhdf.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_zHp5UJWFYEe0piE_YwPjIQ_ec-7j6cc',   // public (publishable) key — safe in the page
+};
+const DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY;
+const PP_EPOCH = '2026-10-04';          // start of PP 08 (a Sunday). Pay periods are 14 days.
+const LEAVE_CODES = ['VC', 'FH', 'PL', 'SK', 'FI'];           // request dropdown
+const ADMIN_LEAVE_CODES = [...LEAVE_CODES, 'HO'];               // admin editor (+ Other…)
+const COVER_SHIFTS = ['S', 'N'];                                 // only Swing & Grave must be filled
+
+// ---------- dates (phone's local time) -------------------------------
+const pad = n => String(n).padStart(2, '0');
+const toStr = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return toStr(d); };
+const utc = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const diffDays = (a, b) => Math.round((utc(b) - utc(a)) / 86400000);
+const mod = (a, n) => ((a % n) + n) % n;
+const dow = s => parse(s).getDay();
+const todayStr = () => toStr(new Date());
+const at = (s, t) => { const [h, m] = t.split(':').map(Number); const d = parse(s); d.setHours(h, m, 0, 0); return d; };
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DL = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const md = s => { const d = parse(s); return `${d.getMonth() + 1}/${d.getDate()}`; };
+const t5 = t => (t || '').slice(0, 5);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// pay periods: PP 01 is the period that contains July 1
+const ppStart = s => addDays(PP_EPOCH, Math.floor(diffDays(PP_EPOCH, s) / 14) * 14);
+function ppNumber(start) {
+  const y = parse(start).getFullYear();
+  let p01 = ppStart(`${y}-07-01`);
+  if (start < p01) p01 = ppStart(`${y - 1}-07-01`);
+  return diffDays(p01, start) / 14 + 1;
+}
+const ppLabel = start => `PP ${pad(ppNumber(start))}`;
+
+// ---------- state ----------------------------------------------------
+const state = {
+  admin: false, signedIn: false, mustChange: false, requests: [], otSignups: [], otPosts: [], draft: null, otPick: 'S',
+  shiftTypes: [], staff: [], rotations: [], exceptions: [], holidays: [],
+  me: null, loggedIn: false, tab: 'schedule', pp: ppStart(todayStr()),
+  span: window.innerWidth >= 1000 ? 2 : 1, log: [],
+};
+
+// ---------- schedule logic -------------------------------------------
+// Chief on top, everyone else alphabetical by the name shown on the schedule
+const byName = (a, b) => (levelOf(b) >= 3) - (levelOf(a) >= 3) || a.short_name.localeCompare(b.short_name);
+const activeStaff = () => state.staff.filter(p => p.active).sort(byName);
+const shiftByCode = c => state.shiftTypes.find(s => s.code === c);
+const sortedShifts = () => [...state.shiftTypes].sort((a, b) => a.sort_order - b.sort_order);
+const holidayOn = s => state.holidays.find(h => h.holiday_date === s);
+const timed = st => st.start_time && st.end_time;
+
+function rotationFor(staffId, s) {
+  let best = null;
+  for (const r of state.rotations) {
+    if (r.staff_id !== staffId || r.effective_from > s || (r.effective_to && r.effective_to < s)) continue;
+    if (!best || r.effective_from > best.effective_from) best = r;
+  }
+  return best;
+}
+const patternCode = (r, s) => (r && r.pattern[mod(diffDays(PP_EPOCH, s), 14)]) || null;
+const exceptionFor = (id, s) => state.exceptions.find(e => e.staff_id === id && e.work_date === s);
+
+// What is this person doing on date s?
+//   { code: 'D'|'S'|'N'|null, leave: 'VC'|'HO'|…|null, ex: exception|undefined, regular: pattern code }
+function assignment(p, s) {
+  const regular = patternCode(rotationFor(p.id, s), s);
+  const hol = holidayOn(s);
+  const ex = exceptionFor(p.id, s);
+  if (ex) return ex.kind === 'off' ? { code: null, leave: ex.leave_code || null, ex, regular } : { code: ex.shift_code, ex, regular, hol };
+  if (hol && p.grp === 'admin') return { code: null, leave: 'HO', regular, hol };  // admin support is off on City holidays
+  return { code: regular, regular, hol };
+}
+const otOf = (p, d) => state.otSignups.filter(g => g.staff_id === p.id && g.work_date === d && g.status === 'assigned').map(g => g.shift_code);
+const worksShift = (p, d, code) => assignment(p, d).code === code || otOf(p, d).includes(code);
+const crew = (s, code) => activeStaff().filter(p => worksShift(p, s, code));
+// trainees are shown but don't count toward coverage
+const levelOf = p => p?.level || 1;
+const isTrainee = (p, s) => !!p.trainee_until && s <= p.trainee_until;
+const covered = (s, code) => crew(s, code).filter(p => !isTrainee(p, s)).length;
+
+// ---------- requests -------------------------------------------------
+const staffById = id => state.staff.find(p => p.id === id);
+const workingOn = (p, s) => assignment(p, s).code !== null;
+const datesIn = (a, b) => { const out = []; for (let d = a; d <= b; d = addDays(d, 1)) out.push(d); return out; };
+const affectedDays = r => { const p = staffById(r.staff_id); return datesIn(r.start_date, r.end_date).filter(d => r.kind === 'change' || workingOn(p, d)); };
+const pendingFor = (p, s) => state.requests.find(r => r.status === 'pending' && r.staff_id === p.id && r.start_date <= s && s <= r.end_date && (r.kind === 'change' || workingOn(p, s)));
+// ASO II → any ASO III or Chief; ASO III → Chief; Chief → admin ID. Admin ID approves anything.
+function canApprove(r) {
+  if (isAdmin()) return true;
+  const me = state.me, req = staffById(r.staff_id);
+  return !!me && !!req && me.id !== req.id && levelOf(me) >= 2 && levelOf(me) > levelOf(req);
+}
+const isApprover = () => isAdmin() || levelOf(state.me) >= 2;
+const approverText = p => levelOf(p) === 2 ? 'the Chief' : 'any ASO III or the Chief';
+const reqWhat = r => r.kind === 'leave' ? `${r.leave_code} — time off`
+  : `Work ${shiftByCode(r.shift_code)?.name || r.shift_code}${r.start_time ? ` ${t5(r.start_time)}–${t5(r.end_time)}` : ''}`;
+const reqDates = r => r.start_date === r.end_date ? `${DOW[dow(r.start_date)]} ${md(r.start_date)}` : `${DOW[dow(r.start_date)]} ${md(r.start_date)} – ${DOW[dow(r.end_date)]} ${md(r.end_date)}`;
+// Coverage after approving a time-off request: which timed shifts drop to 0?
+// ---------- OT --------------------------------------------------------
+// Swing/Grave need at least one non-trainee. OT is triggered when someone on
+// leave (requested or approved) was the only one left on that shift.
+const onPendingLeave = (p, d) => state.requests.some(r => r.status === 'pending' && r.kind === 'leave' && r.staff_id === p.id && r.start_date <= d && d <= r.end_date);
+const onDuty = (p, d, code, withOT = true) => (withOT ? worksShift(p, d, code) : assignment(p, d).code === code) && !isTrainee(p, d) && !onPendingLeave(p, d);
+// Swing/Grave left empty because someone on it is on leave (OT ignored).
+function gapNeed(d, code) {
+  if (!COVER_SHIFTS.includes(code) || activeStaff().some(p => onDuty(p, d, code, false))) return null;
+  const leavers = activeStaff().filter(p => {
+    if (isTrainee(p, d)) return false;
+    const a = assignment(p, d);
+    if (onPendingLeave(p, d) && a.code === code) return true;                           // waiting for approval
+    return !a.code && a.ex?.kind === 'off' && a.ex.leave_code && a.regular === code;      // approved / entered leave
+  });
+  return leavers.length ? { leavers, pending: leavers.every(p => onPendingLeave(p, d)) } : null;
+}
+const postFor = (d, code) => state.otPosts.find(x => x.work_date === d && x.shift_code === code && x.status === 'open');
+// Every OT opportunity on a day: a leave gap (1 position) + any shift a supervisor opened (n positions).
+function otOpps(d) {
+  return ['N', 'D', 'S'].map(code => {
+    const gap = gapNeed(d, code), post = postFor(d, code), assigned = otFilled(d).filter(g => g.shift_code === code);
+    if (!gap && !post && !assigned.length) return null;
+    const capacity = (gap ? 1 : 0) + (post ? post.slots : 0);
+    const assignable = (gap && !gap.pending ? 1 : 0) + (post ? post.slots : 0);   // gap can't be filled until leave is approved
+    return { date: d, code, gap, post, leavers: gap?.leavers || [], pending: !!gap?.pending && !post, capacity, assignable, assigned,
+      remaining: capacity - assigned.length, canAssignNow: assignable - assigned.length > 0 };
+  }).filter(Boolean);
+}
+const otNeeds = d => otOpps(d).filter(o => o.remaining > 0);
+// Which days of this request would trigger OT?
+function otTriggers(r) {
+  if (r.kind !== 'leave') return [];
+  const p = staffById(r.staff_id), out = [];
+  for (const d of affectedDays(r)) {
+    const code = r.status === 'approved' ? assignment(p, d).regular : assignment(p, d).code;
+    if (!COVER_SHIFTS.includes(code) || isTrainee(p, d)) continue;
+    if (!activeStaff().some(o => o.id !== p.id && onDuty(o, d, code))) out.push({ date: d, code });
+  }
+  return out;
+}
+const canAssignOT = () => isAdmin() || levelOf(state.me) >= 2;
+// Shifts in time order: Grave(d) [starts the evening before] → Day(d) → Swing(d) → Grave(d+1) …
+// A double (2 back-to-back) is OK; 3 in a row is not (18-hour limit).
+const SLOT = { N: 0, D: 1, S: 2 };
+const slotOf = (d, code) => diffDays(PP_EPOCH, d) * 3 + SLOT[code];
+function otClash(p, d, code) {
+  const a = assignment(p, d);
+  if (a.leave && a.leave !== 'HO') return 'on leave that day';
+  const set = new Set();
+  for (let i = -2; i <= 2; i++) {
+    const dd = addDays(d, i), c = assignment(p, dd).code;
+    if (c) set.add(slotOf(dd, c));
+    for (const o of otOf(p, dd)) set.add(slotOf(dd, o));
+  }
+  const k = slotOf(d, code);
+  if (set.has(k)) return 'already working that shift';
+  set.add(k);
+  for (let i = k - 2; i <= k; i++) if (set.has(i) && set.has(i + 1) && set.has(i + 2)) return 'would be 3 shifts in a row (18-hour limit)';
+  return null;
+}
+function signupBlock(p, d, code) {          // why this person can't sign up (null = can)
+  if (!p) return 'Sign in to sign up';
+  if (onPendingLeave(p, d)) return "You're on leave that day";
+  return otClash(p, d, code);
+}
+const signupsFor = (d, code) => state.otSignups.filter(x => x.work_date === d && x.shift_code === code && x.status !== 'withdrawn').sort((a, b) => a.created_at.localeCompare(b.created_at));
+const otFilled = d => state.otSignups.filter(g => g.status === 'assigned' && g.work_date === d);
+const otText = list => list.map(x => `${shiftByCode(x.code)?.name} ${DOW[dow(x.date)]} ${md(x.date)}`).join(' · ');
+
+function interval(s, st) {
+  const start = at(st.starts_prev_day ? addDays(s, -1) : s, st.start_time);
+  let end = at(s, st.end_time);
+  if (!st.starts_prev_day && end <= start) end = at(addDays(s, 1), st.end_time);
+  return { start, end };
+}
+// Personal hours: one-day custom hours > the person's own hours for that shift > the shift's standard hours.
+const parseHours = h => { const m = /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/.exec(h || ''); return m ? [m[1].padStart(5, '0'), m[2].padStart(5, '0')] : null; };
+const hoursFor = (p, code) => parseHours(p.hours?.[code]);
+function personTimes(p, d, code) {
+  const ex = assignment(p, d).ex, st = shiftByCode(code);
+  if (ex?.kind === 'work' && ex.shift_code === code && ex.start_time) return [t5(ex.start_time), t5(ex.end_time)];
+  return hoursFor(p, code) || (timed(st) ? [t5(st.start_time), t5(st.end_time)] : null);
+}
+function personInterval(p, d, code) {
+  const t = personTimes(p, d, code); if (!t) return null;
+  return interval(d, { ...shiftByCode(code), start_time: t[0], end_time: t[1] });
+}
+const hoursLabel = (p, d, code) => { const t = personTimes(p, d, code), st = shiftByCode(code);
+  return t && !(timed(st) && t[0] === t5(st.start_time) && t[1] === t5(st.end_time)) ? `${t[0]}–${t[1]}` : ''; };
+// Every timed shift a person works around `now`, using their own hours.
+function personShifts(now) {
+  const t = toStr(now), out = [];
+  for (const d of [addDays(t, -1), t, addDays(t, 1), addDays(t, 2)])
+    for (const p of activeStaff())
+      for (const code of ['N', 'D', 'S']) {
+        if (!worksShift(p, d, code)) continue;
+        const iv = personInterval(p, d, code);
+        if (iv) out.push({ p, d, code, iv });
+      }
+  return out;
+}
+function onDutyNow(now) {
+  const groups = new Map();
+  for (const x of personShifts(now).filter(x => x.iv.start <= now && now < x.iv.end)) {
+    const k = x.code; if (!groups.has(k)) groups.set(k, { st: shiftByCode(k), list: [] }); groups.get(k).list.push(x);
+  }
+  return [...groups.values()].sort((a, b) => SLOT[a.st.code] - SLOT[b.st.code]);
+}
+function nextShift(now) {
+  const up = personShifts(now).filter(x => x.iv.start > now).sort((a, b) => a.iv.start - b.iv.start);
+  if (!up.length) return null;
+  const first = up[0].iv.start;
+  return { start: first, list: up.filter(x => +x.iv.start === +first) };
+}
+const dutyLine = (st, list) => `<div class="sl"><span class="tag ${st.code}">${esc(st.name)}</span><div style="flex:1">
+  <div class="chips">${list.map(x => chipOf(x.p, `${hm(x.iv.start)}–${hm(x.iv.end)}${otOf(x.p, x.d).includes(x.code) && assignment(x.p, x.d).code !== x.code ? ' · OT' : ''}`)).join('')}</div></div></div>`;
+
+// When a new pattern starts on `from`: patterns starting on/after it are
+// replaced; the one running through it ends the day before.
+function rotationPlan(rotations, staffId, from) {
+  const mine = rotations.filter(r => r.staff_id === staffId);
+  return {
+    del: mine.filter(r => r.effective_from >= from).map(r => r.id),
+    close: mine.filter(r => r.effective_from < from && (!r.effective_to || r.effective_to >= from)).map(r => ({ id: r.id, effective_to: addDays(from, -1) })),
+  };
+}
+
+// =====================================================================
+//  Data layer — Supabase, or in-memory demo
+// =====================================================================
+const KEYS = ['shiftTypes', 'staff', 'rotations', 'exceptions', 'holidays', 'requests', 'otSignups', 'otPosts'];
+const demoApi = {
+  db: null,
+  async init() {
+    try { this.db = JSON.parse(localStorage.getItem('landside-demo-v11') || 'null'); } catch { this.db = null; }
+    if (!this.db) this.db = (await import('./demo-data.js')).demoSeed();
+    this.db.requests ||= []; this.db.otSignups ||= []; this.db.otPosts ||= [];
+    try { this.who = localStorage.getItem('landside-demo-user-v11'); } catch {}
+    state.loggedIn = true;
+  },
+  save() { try { localStorage.setItem('landside-demo-v11', JSON.stringify(this.db)); } catch {} },
+  async load() {
+    for (const k of KEYS) state[k] = structuredClone(this.db[k]);
+    state.me = state.staff.find(p => p.id === this.who) || null;
+    state.admin = this.who === 'admin' || state.me?.role === 'admin';
+    state.signedIn = !!this.who;
+  },
+  async signIn(email) {
+    const id = email === 'admin@lawa.org' ? 'admin' : this.db.staff.find(p => p.active && p.email === email)?.id;
+    if (!id) throw new Error('No account with that ID');
+    this.who = id; try { localStorage.setItem('landside-demo-user-v11', id); } catch {}
+  },
+  async signOut() { this.who = null; try { localStorage.removeItem('landside-demo-user-v11'); } catch {} },
+  log(table, action, row) { state.log.unshift({ changed_at: new Date().toISOString(), actor_email: state.me?.email, table_name: table, action, new_data: row }); },
+  async setException(staffId, date, change) {
+    this.db.exceptions = this.db.exceptions.filter(e => !(e.staff_id === staffId && e.work_date === date));
+    if (change) { const row = { id: crypto.randomUUID(), staff_id: staffId, work_date: date, ...change }; this.db.exceptions.push(row); this.log('exceptions', 'UPSERT', row); }
+    else this.log('exceptions', 'DELETE', { staff_id: staffId, work_date: date });
+    this.save();
+  },
+  async saveStaff(row) {
+    if (row.id) { const i = this.db.staff.findIndex(p => p.id === row.id); this.db.staff[i] = { ...this.db.staff[i], ...row }; }
+    else this.db.staff.push({ ...row, id: crypto.randomUUID(), sort_order: this.db.staff.length + 1 });
+    this.log('staff', row.id ? 'UPDATE' : 'INSERT', row); this.save();
+  },
+  async setRotation(staffId, pattern, from) {
+    const plan = rotationPlan(this.db.rotations, staffId, from);
+    this.db.rotations = this.db.rotations.filter(r => !plan.del.includes(r.id));
+    for (const u of plan.close) this.db.rotations.find(r => r.id === u.id).effective_to = u.effective_to;
+    const row = { id: crypto.randomUUID(), staff_id: staffId, pattern, effective_from: from, effective_to: null };
+    this.db.rotations.push(row); this.log('rotations', 'INSERT', row); this.save();
+  },
+  async saveShiftType(st) { const i = this.db.shiftTypes.findIndex(s => s.code === st.code); this.db.shiftTypes[i] = { ...this.db.shiftTypes[i], ...st }; this.save(); },
+  async addHoliday(h) { this.db.holidays = this.db.holidays.filter(x => x.holiday_date !== h.holiday_date); this.db.holidays.push({ id: crypto.randomUUID(), ...h }); this.log('holidays', 'INSERT', h); this.save(); },
+  async deleteHoliday(id) { this.db.holidays = this.db.holidays.filter(h => h.id !== id); this.log('holidays', 'DELETE', { id }); this.save(); },
+  async loadLog() {},
+  async changePassword() { throw new Error('Not available in demo mode'); },
+  async submitRequest(r) {
+    const me = state.me; if (!me) throw new Error('Sign in as a person on the roster first');
+    if (r.end_date < r.start_date) throw new Error('End date is before start date');
+    if (r.start_date < todayStr()) throw new Error('Requests can only be for today or later');
+    const row = { id: crypto.randomUUID(), staff_id: me.id, status: 'pending', created_at: new Date().toISOString(), decided_by_name: null, decided_at: null, ...r };
+    if (r.kind === 'leave' && !affectedDays(row).length) throw new Error('You are not scheduled to work on any of those days');
+    this.db.requests.push(row); this.log('requests', 'INSERT', row);
+    if (levelOf(me) >= 3) this.applyApproved(row, `${me.short_name} (auto)`);   // Chief: granted on submit
+    this.save();
+  },
+  applyApproved(r, by) {
+    const days = affectedDays(r);   // computed before the schedule changes
+    Object.assign(r, { status: 'approved', decided_at: new Date().toISOString(), decided_by_name: by });
+    for (const d of days) {
+      this.db.exceptions = this.db.exceptions.filter(e => !(e.staff_id === r.staff_id && e.work_date === d));
+      this.db.exceptions.push(r.kind === 'leave'
+        ? { id: crypto.randomUUID(), staff_id: r.staff_id, work_date: d, kind: 'off', shift_code: null, leave_code: r.leave_code, start_time: null, end_time: null, request_id: r.id }
+        : { id: crypto.randomUUID(), staff_id: r.staff_id, work_date: d, kind: 'work', shift_code: r.shift_code, leave_code: null, start_time: r.start_time, end_time: r.end_time, request_id: r.id });
+    }
+  },
+  async cancelRequest(id) {
+    const r = this.db.requests.find(x => x.id === id);
+    if (!r || r.status !== 'pending' || r.staff_id !== state.me?.id) throw new Error('Only your own pending requests can be cancelled');
+    r.status = 'cancelled'; r.decided_at = new Date().toISOString(); this.save();
+  },
+  async otSignup(d, code) {
+    const me = state.me, why = signupBlock(me, d, code);
+    if (why) throw new Error(why);
+    if (d < todayStr()) throw new Error('That date has passed');
+    if (!otNeeds(d).some(o => o.code === code)) throw new Error('That shift is not open for OT');
+    const ex = this.db.otSignups.find(x => x.work_date === d && x.shift_code === code && x.staff_id === me.id);
+    if (ex && ex.status !== 'withdrawn') return;
+    if (ex) Object.assign(ex, { status: 'interested', created_at: new Date().toISOString() });
+    else this.db.otSignups.push({ id: crypto.randomUUID(), work_date: d, shift_code: code, staff_id: me.id, status: 'interested', created_at: new Date().toISOString() });
+    this.save();
+  },
+  async otPost(d, code, slots) {
+    if (!canAssignOT()) throw new Error('Only an ASO III, the Chief or the admin can open OT');
+    const ex = this.db.otPosts.find(x => x.work_date === d && x.shift_code === code && x.status === 'open');
+    if (ex) ex.slots = slots;
+    else this.db.otPosts.push({ id: crypto.randomUUID(), work_date: d, shift_code: code, slots, status: 'open', created_by_name: state.me?.short_name || 'Admin', created_at: new Date().toISOString() });
+    this.log('ot_posts', 'OPEN', { work_date: d, shift_code: code, slots }); this.save();
+  },
+  async otUnpost(d, code) {
+    if (!canAssignOT()) throw new Error('Only an ASO III, the Chief or the admin can remove OT');
+    const post = this.db.otPosts.find(x => x.work_date === d && x.shift_code === code && x.status === 'open');
+    const opp = otOpps(d).find(o => o.code === code);
+    if (opp && opp.assigned.length > opp.assignable - (post?.slots || 0)) throw new Error('Someone is already assigned to this OT — ask the admin to remove it from the schedule first');
+    if (post) post.status = 'cancelled';
+    if (!opp?.gap) for (const x of this.db.otSignups) if (x.work_date === d && x.shift_code === code && x.status === 'interested') x.status = 'withdrawn';
+    this.save();
+  },
+  async otWithdraw(d, code) {
+    const ex = this.db.otSignups.find(x => x.work_date === d && x.shift_code === code && x.staff_id === state.me?.id && x.status === 'interested');
+    if (!ex) throw new Error('You are not on the list for that OT');
+    ex.status = 'withdrawn'; ex.decided_at = new Date().toISOString(); this.save();
+  },
+  async otAssign(id) {
+    if (!canAssignOT()) throw new Error('Only an ASO III, the Chief or the admin can assign OT');
+    const sg = this.db.otSignups.find(x => x.id === id);
+    if (!sg || sg.status !== 'interested') throw new Error('That sign-up is no longer open');
+    if (sg.staff_id === state.me?.id && !isAdmin()) throw new Error("You can't assign OT to yourself");
+    const opp = otOpps(sg.work_date).find(o => o.code === sg.shift_code);
+    if (!opp?.canAssignNow) throw new Error('No OT position open to assign — the leave may not be approved yet');
+    const why = otClash(staffById(sg.staff_id), sg.work_date, sg.shift_code); if (why) throw new Error("Can't assign: " + why);
+    const by = state.me?.short_name || 'Admin', now = new Date().toISOString();
+    Object.assign(sg, { status: 'assigned', decided_by_name: by, decided_at: now });
+    if (opp.assigned.length + 1 >= opp.assignable)     // all positions filled
+      for (const x of this.db.otSignups) if (x.work_date === sg.work_date && x.shift_code === sg.shift_code && x.status === 'interested')
+        Object.assign(x, { status: 'not_selected', decided_by_name: by, decided_at: now });
+    this.log('ot_signups', 'ASSIGN', sg); this.save();
+  },
+  async decideRequest(id, approve) {
+    const r = this.db.requests.find(x => x.id === id);
+    if (!r || r.status !== 'pending') throw new Error('This request was already decided');
+    if (!canApprove(r)) throw new Error('You are not allowed to approve this request');
+    const by = state.me?.short_name || 'Admin';
+    if (approve) this.applyApproved(r, by);
+    else Object.assign(r, { status: 'denied', decided_at: new Date().toISOString(), decided_by_name: by });
+    this.log('requests', approve ? 'APPROVE' : 'DENY', r); this.save();
+  },
+};
+
+const supaApi = {
+  sb: null, email: null,
+  async init() {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    this.sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    const { data } = await this.sb.auth.getSession();
+    state.loggedIn = !!data.session; this.email = data.session?.user?.email?.toLowerCase() || null;
+    this.sb.auth.onAuthStateChange((_e, session) => {
+      const was = state.loggedIn;
+      state.loggedIn = !!session; this.email = session?.user?.email?.toLowerCase() || null;
+      if (was !== state.loggedIn) refresh();
+    });
+  },
+  ok(res) { if (res.error) throw new Error(res.error.message); return res.data; },
+  async load() {
+    if (!state.loggedIn) { state.me = null; state.admin = false; state.signedIn = false; state.mustChange = false; return; }
+    const since = addDays(todayStr(), -200);
+    const r = await Promise.all([
+      this.sb.from('shift_types').select('*'), this.sb.from('staff').select('*'), this.sb.from('rotations').select('*'),
+      this.sb.from('exceptions').select('*').gte('work_date', since), this.sb.from('holidays').select('*'),
+      this.sb.from('requests').select('*').gte('end_date', since).order('created_at', { ascending: false }),
+      this.sb.from('ot_signups').select('*').gte('work_date', since),
+      this.sb.from('ot_posts').select('*').eq('status', 'open').gte('work_date', since),
+    ]);
+    [state.shiftTypes, state.staff, state.rotations, state.exceptions, state.holidays, state.requests, state.otSignups, state.otPosts] = r.map(x => this.ok(x));
+    state.me = state.staff.find(p => p.email === this.email) || null;
+    state.admin = !!this.ok(await this.sb.rpc('is_admin'));
+    state.signedIn = true;
+    const { data: u } = await this.sb.auth.getUser();
+    state.mustChange = !u?.user?.user_metadata?.pw_set;   // first sign-in with the default password
+  },
+  async signIn(email, password) { this.ok(await this.sb.auth.signInWithPassword({ email, password })); },
+  async signOut() { await this.sb.auth.signOut(); },
+  async setException(staffId, date, change) {
+    if (!change) return this.ok(await this.sb.from('exceptions').delete().eq('staff_id', staffId).eq('work_date', date));
+    this.ok(await this.sb.from('exceptions').upsert({ staff_id: staffId, work_date: date, ...change }, { onConflict: 'staff_id,work_date' }));
+  },
+  async saveStaff(row) {
+    if (row.id) { const { id, ...rest } = row; this.ok(await this.sb.from('staff').update(rest).eq('id', id)); }
+    else this.ok(await this.sb.from('staff').insert({ ...row, sort_order: state.staff.length + 1 }));
+  },
+  async setRotation(staffId, pattern, from) {
+    const plan = rotationPlan(state.rotations, staffId, from);
+    if (plan.del.length) this.ok(await this.sb.from('rotations').delete().in('id', plan.del));
+    for (const u of plan.close) this.ok(await this.sb.from('rotations').update({ effective_to: u.effective_to }).eq('id', u.id));
+    this.ok(await this.sb.from('rotations').insert({ staff_id: staffId, pattern, effective_from: from }));
+  },
+  async saveShiftType(st) { const { code, ...rest } = st; this.ok(await this.sb.from('shift_types').update(rest).eq('code', code)); },
+  async addHoliday(h) { this.ok(await this.sb.from('holidays').upsert(h, { onConflict: 'holiday_date' })); },
+  async deleteHoliday(id) { this.ok(await this.sb.from('holidays').delete().eq('id', id)); },
+  async loadLog() { state.log = this.ok(await this.sb.from('change_log').select('*').order('changed_at', { ascending: false }).limit(60)); },
+  async changePassword(pw) { this.ok(await this.sb.auth.updateUser({ password: pw, data: { pw_set: true } })); },
+  async submitRequest(r) {
+    this.ok(await this.sb.rpc('submit_request', { p_start: r.start_date, p_end: r.end_date, p_kind: r.kind, p_leave_code: r.leave_code,
+      p_shift_code: r.shift_code, p_start_time: r.start_time, p_end_time: r.end_time }));
+  },
+  async cancelRequest(id) { this.ok(await this.sb.rpc('cancel_request', { p_id: id })); },
+  async decideRequest(id, approve) { this.ok(await this.sb.rpc('decide_request', { p_id: id, p_approve: approve })); },
+  async otSignup(d, code) { this.ok(await this.sb.rpc('ot_signup', { p_date: d, p_code: code })); },
+  async otWithdraw(d, code) { this.ok(await this.sb.rpc('ot_withdraw', { p_date: d, p_code: code })); },
+  async otAssign(id) { this.ok(await this.sb.rpc('ot_assign', { p_signup: id })); },
+  async otPost(d, code, slots) { this.ok(await this.sb.rpc('ot_post', { p_date: d, p_code: code, p_slots: slots })); },
+  async otUnpost(d, code) { this.ok(await this.sb.rpc('ot_unpost', { p_date: d, p_code: code })); },
+};
+const api = DEMO ? demoApi : supaApi;
+
+// =====================================================================
+//  UI
+// =====================================================================
+const $app = document.getElementById('app'), $modal = document.getElementById('modal');
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<div class="toast ${err ? 'err' : ''}">${esc(msg)}</div>`;
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.innerHTML = '', 3000);
+}
+async function run(fn, okMsg) {
+  try { await fn(); if (okMsg) toast(okMsg); await refresh(); return true; }
+  catch (e) { toast(e.message || String(e), true); return false; }
+}
+const isAdmin = () => !!state.admin;
+// "jchang" → jchang@lawa.org, "admin" → admin@lawa.org (the shared admin ID)
+const loginEmail = v => { v = v.trim().toLowerCase(); return v.includes('@') ? v : `${v}@lawa.org`; };
+const canEdit = p => isAdmin() || (!!state.me && state.me.id === p.id);
+const shiftTime = (s, st) => {
+  if (!timed(st)) return '';
+  const iv = interval(s, st);
+  return st.starts_prev_day ? `${DOW[iv.start.getDay()]} ${hm(iv.start)} → ${hm(iv.end)}` : `${hm(iv.start)} – ${hm(iv.end)}`;
+};
+const chipOf = (p, extra = '') => `<span class="chip ${state.me?.id === p.id ? 'me' : ''}">${esc(p.short_name)}${extra ? `<small>${esc(extra)}</small>` : ''}</span>`;
+const chipsFor = (s, st) => {
+  const c = crew(s, st.code);
+  const gap = COVER_SHIFTS.includes(st.code) && covered(s, st.code) === 0 ? `<span class="gap">${c.length ? 'Trainee only' : 'No coverage'}</span>` : '';
+  if (!c.length) return gap || `<span class="muted">—</span>`;  // Day may be empty
+  const extra = p => { const ex = assignment(p, s).ex; return otOf(p, s).includes(st.code) && assignment(p, s).code !== st.code ? 'OT' : isTrainee(p, s) ? 'trainee' : hoursLabel(p, s, st.code); };
+  return `<div class="chips">${c.map(p => chipOf(p, extra(p))).join('')}${gap}</div>`;
+};
+const shiftLine = (s, st) => { const std = shiftTime(s, st), mixed = crew(s, st.code).some(p => hoursLabel(p, s, st.code));
+  return `<div class="sl"><span class="tag ${st.code}">${esc(st.name)}</span>
+  <div style="flex:1">${chipsFor(s, st)}${std ? `<div class="time">${mixed ? 'Standard ' : ''}${std}</div>` : ''}</div></div>`; };
+
+const ICON = {
+  schedule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
+  requests: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+  approvals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
+  admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  log: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  account: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  out: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+};
+const initials = n => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const roleText = () => isAdmin() && !state.me ? 'Administrator' : state.me ? `${state.me.title || ''}${isAdmin() ? ' · admin' : ''}` : '';
+function renderTabs() {
+  const tabs = [['schedule', 'Schedule']];
+  if (state.me) tabs.push(['requests', 'My requests']);
+  if (isApprover()) { const n = state.requests.filter(r => r.status === 'pending' && canApprove(r)).length + openOTList().filter(x => x.canAssignNow && signupsFor(x.date, x.code).some(g => g.status === 'interested')).length; tabs.push(['approvals', `Time approval${n ? `<span class="badge">${n}</span>` : ''}`]); }
+  if (isAdmin()) tabs.push(['admin', 'Admin']);
+  tabs.push(['log', 'Log']);
+  tabs.push(['account', 'Account']);
+  if (!tabs.some(t => t[0] === state.tab)) state.tab = 'schedule';
+  document.getElementById('tabs').innerHTML = tabs.map(([k, l]) => `<button data-tab="${k}" class="${state.tab === k ? 'on' : ''}">${ICON[k]}<span>${l}</span></button>`).join('');
+  const name = state.me?.full_name || (isAdmin() ? 'Landside Admin' : '');
+  document.getElementById('who').innerHTML = `<div class="uname">${esc(name)}<small>${esc(roleText())}</small></div>
+    <div class="avatar" title="${esc(name)}">${esc(initials(name || '?'))}</div>
+    <button class="iconbtn" id="signOut" title="Sign out">${ICON.out}<span>Sign out</span></button>`;
+}
+
+function renderSchedule() {
+  const now = new Date(), today = todayStr(), shifts = sortedShifts();
+  // --- today card
+  const hol = holidayOn(today);
+  const out = activeStaff().map(p => [p, assignment(p, today)]).filter(([, a]) => a.leave && a.leave !== 'HO');
+  const todayCard = `<div class="card"><h3>Today · ${DOW[dow(today)]} ${md(today)}${hol ? ` · <span style="color:var(--red)">${esc(hol.name)}</span>` : ''}</h3>
+    ${shifts.map(st => shiftLine(today, st)).join('')}
+    ${otNeeds(today).map(x => `<div class="sl"><span class="tag" style="background:#F59E0B;color:#fff">OT</span><div style="flex:1"><b>${esc(shiftByCode(x.code)?.name)} OT open${x.remaining > 1 ? ` · ${x.remaining} positions` : ''}</b><div class="time">${x.gap ? `${x.leavers.map(p => esc(p.short_name)).join(', ')} off${x.pending ? ' · pending approval' : ''}` : `Opened by ${esc(x.post.created_by_name)}`}</div></div></div>`).join('')}
+    ${out.length ? `<div class="sl"><span class="tag L">Leave</span><div class="chips" style="flex:1">${out.map(([p, a]) => chipOf(p, a.leave)).join('')}</div></div>` : ''}</div>`;
+  // --- now / next card (timed shifts only)
+  const duty = onDutyNow(now), nxt = nextShift(now);
+  const mins = nxt ? Math.round((nxt.start - now) / 60000) : 0;
+  const inTxt = `${Math.floor(mins / 60) ? Math.floor(mins / 60) + 'h ' : ''}${mins % 60}m`;
+  const nowCard = `<div class="card"><h3>On duty now · ${hm(now)}</h3>
+    ${duty.length ? duty.map(g => dutyLine(g.st, g.list)).join('') : '<p class="muted" style="margin:4px 0">No Swing or Grave shift right now.</p>'}
+    ${nxt ? `<h3 style="margin-top:12px">Next · in ${inTxt}</h3>${[...new Set(nxt.list.map(x => x.code))].map(c => dutyLine(shiftByCode(c), nxt.list.filter(x => x.code === c))).join('')}` : ''}</div>`;
+
+  // --- pay-period grid
+  const days = [...Array(14 * state.span)].map((_, i) => addDays(state.pp, i));
+  const pps = [...Array(state.span)].map((_, i) => addDays(state.pp, i * 14));
+  const last = days[days.length - 1], d0 = parse(state.pp), dl = parse(last);
+  const range = `${MON[d0.getMonth()]} ${d0.getDate()} – ${MON[dl.getMonth()]} ${dl.getDate()}, ${dl.getFullYear()}`;
+  const th = s => { const h = holidayOn(s); return `<th class="dt ${s < today ? 'past' : ''} ${s === today ? 'today' : ''} ${h ? 'hol' : ''}" ${h ? `title="${esc(h.name)}"` : ''}>${DL[dow(s)]}<b>${parse(s).getDate()}</b></th>`; };
+  let html = `<div class="gridwrap"><table class="sch"><thead>
+    <tr><th class="nm pp" rowspan="2">Name</th>${pps.map(p => `<th class="pp" colspan="14">${ppLabel(p)}</th>`).join('')}</tr>
+    <tr>${days.map(th).join('')}</tr></thead><tbody>`;
+  const groups = [['admin', 'Landside Admin Support'], ['duty', 'Landside Duty']];
+  for (const [g, label] of groups) {
+    const people = activeStaff().filter(p => p.grp === g);
+    if (!people.length) continue;
+    html += `<tr class="grp"><td colspan="${days.length + 1}">${label}</td></tr>`;
+    for (const p of people) {
+      const edBase = isAdmin() || state.me?.id === p.id;
+      const trn = days.some(s => isTrainee(p, s));
+      const noPat = !state.rotations.some(r => r.staff_id === p.id);
+      html += `<tr class="${state.me?.id === p.id ? 'me' : ''}"><td class="nm">${esc(p.short_name)}${trn ? ` <span class="trb" title="Training through ${md(p.trainee_until)}">Training</span>` : ''}${noPat ? `<div class="tbd">Schedule TBD</div>` : ''}</td>` + days.map(s => {
+        const a = assignment(p, s);
+        const pr = pendingFor(p, s), ed = edBase && s >= today;
+        const ots = otOf(p, s);
+        const cls = a.code ? a.code : ots.length ? ots[0] : a.leave ? 'L' : '';
+        const otTxt = ots.length ? (a.code ? '+' + ots.map(c => c === 'N' ? 'G' : c).join('') : 'OT') : '';
+        const txt = otTxt && !pr ? otTxt : pr ? esc(pr.kind === 'leave' ? pr.leave_code : (pr.shift_code === 'N' ? 'G' : pr.shift_code)) : a.leave ? esc(a.leave) : a.code && isTrainee(p, s) ? 'T' : (a.code && a.hol ? 'HO' : '');
+        const tip = ots.length ? ots.map(c => `${shiftByCode(c)?.name} OT`).join(', ') + (a.code ? ` + regular ${shiftByCode(a.code)?.name}` : '') : pr ? `Pending: ${reqWhat(pr)}` : a.ex?.start_time ? `${t5(a.ex.start_time)}–${t5(a.ex.end_time)}` : '';
+        return `<td class="c ${cls} ${a.ex ? 'x' : ''} ${pr ? 'pend' : ''} ${ed ? 'ed' : ''} ${s < today ? 'past' : ''} ${s === today ? 'today' : ''}" ${ed ? `data-cell="${p.id}|${s}"` : ''} ${tip ? `title="${esc(tip)}"` : ''}>${txt}</td>`;
+      }).join('') + `</tr>`;
+    }
+  }
+  html += `<tr class="otrow"><td class="nm">OT</td>` + days.map(s => {
+    if (s < today) return `<td class="past"></td>`;
+    const opps = otOpps(s), open = opps.filter(o => o.remaining > 0), click = opps.length || canAssignOT();
+    const L = c => c === 'N' ? 'G' : c;
+    const tip = opps.map(o => `${shiftByCode(o.code)?.name} OT: ${o.assigned.length}/${o.capacity} filled${o.post ? ` (opened by ${o.post.created_by_name})` : ''}${o.gap ? ` — ${o.leavers.map(p => p.short_name).join(', ')} off${o.gap.pending ? ', pending approval' : ''}` : ''}`).join('\n') || (canAssignOT() ? 'Open an OT shift' : '');
+    const cls = open.length ? `ot ${open.every(o => o.pending) ? 'pend' : ''}` : opps.length ? 'ot otf' : canAssignOT() ? 'otadd' : '';
+    const txt = open.length ? open.map(o => L(o.code) + (o.remaining > 1 ? '×' + o.remaining : '')).join(' ') : opps.length ? '✓' : '';
+    return `<td class="${cls} ${s === today ? 'today' : ''}" ${click ? `data-ot="${s}"` : ''} ${tip ? `title="${esc(tip)}"` : ''}>${txt}</td>`;
+  }).join('') + `</tr>`;
+  for (const st of shifts.filter(x => COVER_SHIFTS.includes(x.code))) {
+    html += `<tr class="cov"><td class="nm">${esc(st.name)} count</td>` + days.map(s => { const n = covered(s, st.code); return `<td class="${n ? '' : 'zero'} ${s === today ? 'today' : ''}">${n}</td>`; }).join('') + `</tr>`;
+  }
+  html += `</tbody></table></div>`;
+
+  $app.innerHTML = `
+    ${DEMO ? `<div class="banner">Demo mode — schedule from the PP08–PP13 spreadsheet, today forward. Park &amp; Chang in training, schedule TBD. Changes stay on this device.</div>` : ''}
+    <div class="cards">${todayCard}${nowCard}</div>
+    <div class="ppnav">
+      <h2>${pps.map(ppLabel).join(' – ')}<small>${range}</small></h2>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <div class="seg"><button data-span="1" class="${state.span === 1 ? 'on' : ''}">1 PP</button><button data-span="2" class="${state.span === 2 ? 'on' : ''}">2 PPs</button></div>
+        <button class="btn" data-pp="-1" ${state.pp <= ppStart(todayStr()) ? 'disabled' : ''}>‹</button><button class="btn" data-pp="0">Today</button><button class="btn" data-pp="1">›</button>
+      </div>
+    </div>
+    ${html}
+    <div class="legend">
+      <span><span class="sw" style="background:var(--D)"></span>Day</span>
+      <span><span class="sw" style="background:var(--S)"></span>Swing ${t5(shiftByCode('S')?.start_time)}–${t5(shiftByCode('S')?.end_time)}</span>
+      <span><span class="sw" style="background:var(--N)"></span>Grave ${t5(shiftByCode('N')?.start_time)}–${t5(shiftByCode('N')?.end_time)}</span>
+      <span><span class="sw" style="background:repeating-linear-gradient(135deg,#EEF0F3 0 3px,#E3E6EB 3px 6px)"></span>Leave (VC, FH, HO…)</span>
+      <span><span class="sw" style="background:repeating-linear-gradient(135deg,rgba(232,150,0,.45) 0 3px,#fff 3px 6px);outline:1.5px dashed #D08A00"></span>Pending approval</span>
+      <span><span class="sw" style="background:#F59E0B"></span>OT needed (light = leave still pending)</span>
+      <span><span class="sw" style="background:#DDF3E6"></span>OT covered</span>
+      <span>● changed from regular</span>
+      <span><b>T</b> trainee (not counted)</span>
+      <span>${isAdmin() ? 'Tap any cell to change it.' : state.me ? 'Tap a day in your row to request time off or a change.' : 'Sign in to request changes.'} Grave counts on the day it ends.</span>
+    </div>`;
+}
+
+// ---------- day editor (bottom sheet) -------------------------------
+function openEditor(staffId, s) {
+  const p = state.staff.find(x => x.id === staffId), a = assignment(p, s), shifts = sortedShifts();
+  const reg = a.regular ? shiftByCode(a.regular)?.name : 'Off';
+  const cur = a.ex ? (a.ex.kind === 'off' ? (a.ex.leave_code ? 'L:' + a.ex.leave_code : 'off') : 'W:' + a.ex.shift_code) : 'regular';
+  const custom = a.ex?.leave_code && !ADMIN_LEAVE_CODES.includes(a.ex.leave_code) ? a.ex.leave_code : '';
+  const o = (v, label, cls = '') => `<button class="opt ${cls} ${cur === v ? 'on' : ''}" data-set="${v}">${label}</button>`;
+  $modal.innerHTML = `<div class="scrim" data-close="1"><div class="sheet">
+    <h3>${esc(p.short_name)} · ${DOW[dow(s)]} ${md(s)}</h3>
+    <div class="muted">Regular: <b>${esc(reg)}</b>${holidayOn(s) ? ` · ${esc(holidayOn(s).name)}` : ''}</div>
+    <div class="opts">${o('regular', 'Regular')}${o('off', 'Off')}</div>
+    <div class="olabel">Leave</div>
+    <div class="opts">${ADMIN_LEAVE_CODES.map(c => o('L:' + c, c)).join('')}<button class="opt" data-custom="1">Other…</button></div>
+    <div id="customRow" style="display:${custom ? 'flex' : 'none'};gap:6px;margin-bottom:8px">
+      <input id="customCode" maxlength="8" placeholder="e.g. FH/VC" value="${esc(custom)}"><button class="btn primary" data-setcustom="1">Set</button></div>
+    <div class="olabel">Work</div>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:8px"><span class="muted">Hours (optional)</span>
+      <input type="time" id="exStart" value="${t5(a.ex?.start_time)}" style="width:auto"><span class="muted">to</span><input type="time" id="exEnd" value="${t5(a.ex?.end_time)}" style="width:auto"></div>
+    <div class="opts">${shifts.map(st => o('W:' + st.code, esc(st.name), st.code)).join('')}</div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn" data-close="1">Close</button></div>
+  </div></div>`;
+  $modal.dataset.target = `${staffId}|${s}`;
+}
+function applyEdit(v) {
+  const [staffId, s] = $modal.dataset.target.split('|');
+  const change = v === 'regular' ? null
+    : v === 'off' ? { kind: 'off', shift_code: null, leave_code: null }
+    : v.startsWith('L:') ? { kind: 'off', shift_code: null, leave_code: v.slice(2) }
+    : { kind: 'work', shift_code: v.slice(2), leave_code: null,
+        start_time: document.getElementById('exStart')?.value || null, end_time: document.getElementById('exEnd')?.value || null };
+  if (change && change.kind === 'off') Object.assign(change, { start_time: null, end_time: null });
+  if (change?.start_time && !change.end_time) return toast('Add an end time too', true);
+  $modal.innerHTML = '';
+  run(() => api.setException(staffId, s, change), 'Saved');
+}
+
+// ---------- OT window ------------------------------------------------
+function otBlock(x, { inSheet } = {}) {
+  const d = x.date, st = shiftByCode(x.code), list = signupsFor(d, x.code).filter(g => g.status === 'interested');
+  const me = state.me, mine = me && list.find(g => g.staff_id === me.id), full = x.remaining <= 0;
+  const leaveCode = p => assignment(p, d).ex?.leave_code || state.requests.find(r => r.status === 'pending' && r.staff_id === p.id && r.start_date <= d && d <= r.end_date)?.leave_code || 'off';
+  const queue = full ? '' : list.length ? `<ol class="queue">${list.map(g => {
+      const p = staffById(g.staff_id), clash = otClash(p, d, x.code);
+      const assignBtn = canAssignOT() && (isAdmin() || g.staff_id !== me?.id)
+        ? (!x.canAssignNow ? `<button class="btn sm" disabled title="Approve the leave first">Assign</button>`
+          : clash ? `<span class="warn" style="margin:0">${esc(clash)}</span>` : `<button class="btn sm primary" data-otassign="${g.id}">Assign</button>`) : '';
+      return `<li><span><b>${esc(p?.short_name)}</b>${isTrainee(p, d) ? ' <span class="trb">trainee</span>' : ''} <span class="muted">${new Date(g.created_at).toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span></span>${assignBtn}</li>`;
+    }).join('')}</ol>` : `<div class="time">No one has signed up yet.</div>`;
+  const block = me ? signupBlock(me, d, x.code) : null;
+  const myBtn = !me || full ? '' : mine ? `<button class="btn" data-otwithdraw="${d}|${x.code}">Withdraw</button>`
+    : block ? `<button class="btn" disabled title="${esc(block)}">Sign up</button>`
+    : `<button class="btn primary" data-otsignup="${d}|${x.code}">Sign up${inSheet ? ` for ${esc(st.name)}` : ''}</button>`;
+  const status = x.gap && !x.post ? `<span class="st ${x.gap.pending ? 'pending' : 'approved'}">${x.gap.pending ? 'Approval pending' : 'Leave approved'}</span>`
+    : `<span class="st ${full ? 'approved' : 'pending'}">${x.assigned.length} of ${x.capacity} filled</span>`;
+  const title = x.post && !x.gap ? `OT opened by ${esc(x.post.created_by_name)}` : x.post ? `No one on duty + OT opened by ${esc(x.post.created_by_name)}` : 'No one on duty';
+  return { html: `<div class="sl"><span class="tag ${x.code}">${esc(st.name)}</span><div style="flex:1">
+      <b>${title}</b> ${status}
+      ${x.gap && x.post ? `<div class="time">Leave ${x.gap.pending ? 'pending approval' : 'approved'}</div>` : ''}
+      <div class="time">${inSheet ? '' : `${DOW[dow(d)]} ${md(d)} · `}${shiftTime(d, st) || 'Day shift'}${x.capacity > 1 ? ` · ${x.capacity} positions` : ''}</div>
+      ${x.leavers.length ? `<div class="time">Off: ${x.leavers.map(p => `${esc(p.short_name)} (${esc(leaveCode(p))})`).join(', ')}</div>` : ''}
+      ${x.assigned.length ? `<div class="time"><b>Assigned:</b> ${x.assigned.map(g => esc(staffById(g.staff_id)?.short_name)).join(', ')}</div>` : ''}
+      ${full ? '' : `<div class="olabel" style="margin-top:8px">Sign-up list</div>${queue}`}
+      ${!full && !x.canAssignNow && canAssignOT() && list.length ? `<div class="time">You can assign once the leave is approved.</div>` : ''}
+      ${me && block && !mine && !full ? `<div class="time">You can't sign up: ${esc(block)}</div>` : ''}
+      ${inSheet && myBtn ? `<div style="margin-top:8px">${myBtn}</div>` : ''}
+      ${inSheet && x.post && canAssignOT() ? `<div style="margin-top:8px"><button class="btn sm danger" data-otunpost="${d}|${x.code}">Remove this OT</button></div>` : ''}
+      ${!inSheet && myBtn ? `<div style="margin-top:8px">${myBtn}</div>` : ''}
+    </div></div>`, myBtn };
+}
+function openOT(d) {
+  const opps = otOpps(d);
+  const create = canAssignOT() ? `<div class="otnew"><div class="olabel">Open an OT shift</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">
+        ${['D', 'S', 'N'].map(c => `<button class="opt ${c} ${state.otPick === c ? 'on' : ''}" data-otpick="${c}" style="padding:8px 14px">${esc(shiftByCode(c)?.name)}</button>`).join('')}
+        <select id="otSlots" style="width:auto">${[1, 2, 3, 4, 5, 6, 8, 10].map(n => `<option value="${n}" ${(postFor(d, state.otPick)?.slots || 1) === n ? 'selected' : ''}>${n} ${n > 1 ? 'people' : 'person'}</option>`).join('')}</select>
+        <button class="btn primary" id="otPost">${postFor(d, state.otPick) ? 'Update' : 'Open OT'}</button>
+      </div></div>` : '';
+  $modal.innerHTML = `<div class="scrim" data-close="1"><div class="sheet"><h3>OT · ${DOW[dow(d)]} ${md(d)}${holidayOn(d) ? ` · ${esc(holidayOn(d).name)}` : ''}</h3>
+    ${opps.length ? opps.map(x => otBlock(x, { inSheet: true }).html).join('') : `<p class="muted">No OT on this day.</p>`}
+    ${create}
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">${opps.length === 1 ? otBlock(opps[0], { inSheet: true }).myBtn.replace(/ for \w+</, '<') : ''}<button class="btn" data-close="1">Close</button></div></div></div>`;
+  // with one OT the Sign up button sits next to Close instead of inside the block
+  if (opps.length === 1) $modal.querySelectorAll('.sl [data-otsignup], .sl [data-otwithdraw]').forEach(b => b.parentElement.remove());
+  $modal.dataset.ot = d;
+}
+
+// ---------- my requests ----------------------------------------------
+function newDraft(date) {
+  const d = date || addDays(todayStr(), 1);
+  return { kind: 'leave', start_date: d, end_date: d, leave_code: 'VC', other: '', shift_code: assignment(state.me, d).code || state.me.grp === 'admin' && 'D' || 'S', start_time: '', end_time: '' };
+}
+function draftToRequest(f) {
+  const leave = f.leave_code;
+  return f.kind === 'leave'
+    ? { kind: 'leave', start_date: f.start_date, end_date: f.end_date, leave_code: leave, shift_code: null, start_time: null, end_time: null }
+    : { kind: 'change', start_date: f.start_date, end_date: f.end_date, leave_code: null, shift_code: f.shift_code, start_time: f.start_time || null, end_time: f.end_time || null };
+}
+function previewHtml() {
+  const f = state.draft; if (!f || !f.start_date || !f.end_date) return '';
+  if (f.end_date < f.start_date) return `<span class="warn">End date is before start date.</span>`;
+  const r = { ...draftToRequest(f), staff_id: state.me.id };
+  const days = affectedDays(r);
+  if (f.kind === 'leave' && !days.length) return `<span class="warn">You're not scheduled to work on any of those days.</span>`;
+  const list = days.slice(0, 14).map(d => `${DOW[dow(d)]} ${md(d)}`).join(', ') + (days.length > 14 ? ` … (+${days.length - 14})` : '');
+  const w = otTriggers(r);
+  return `${f.kind === 'leave' ? `<b>${days.length}</b> scheduled day${days.length > 1 ? 's' : ''} off` : `<b>${days.length}</b> day${days.length > 1 ? 's' : ''} changed`}: ${list}
+    ${w.length ? `<div class="warn">⚠ You're the only one on duty — this sends out an OT request: ${esc(otText(w))}</div>` : ''}
+    <div class="muted" style="margin-top:4px">${levelOf(state.me) >= 3 ? 'Approved automatically when you send it.' : `Goes to ${approverText(state.me)} for approval.`}</div>`;
+}
+function reqCard(r, actions) {
+  const p = staffById(r.staff_id);
+  const days = r.status === 'approved' ? state.exceptions.filter(e => e.request_id === r.id) : affectedDays(r);
+  return `<div class="req"><div class="top"><div>
+      <div class="what">${esc(p?.short_name)} · ${esc(reqWhat(r))}</div>
+      <div class="days">${reqDates(r)} · ${days.length} day${days.length === 1 ? '' : 's'} · requested ${new Date(r.created_at).toLocaleDateString()}</div>
+    </div><div><span class="st ${r.status}">${r.status}</span></div></div>
+    ${r.decided_by_name && r.status !== 'pending' ? `<div class="days">${r.status === 'approved' ? 'Approved' : r.status === 'denied' ? 'Denied' : 'Closed'} by ${esc(r.decided_by_name)}${r.decided_at ? ' · ' + new Date(r.decided_at).toLocaleDateString() : ''}</div>` : ''}
+    ${actions || ''}</div>`;
+}
+function renderRequests() {
+  if (!state.me) return renderSchedule();
+  state.draft ||= newDraft();
+  const f = state.draft, shifts = sortedShifts();
+  const mine = state.requests.filter(r => r.staff_id === state.me.id && r.end_date >= todayStr()).sort((a, b) => b.created_at.localeCompare(a.created_at));
+  $app.innerHTML = `
+    <div class="card" style="margin-bottom:16px"><h3>New request</h3>
+      <div class="seg" style="margin:4px 0 12px"><button data-kind="leave" class="${f.kind === 'leave' ? 'on' : ''}">Time off</button><button data-kind="change" class="${f.kind === 'change' ? 'on' : ''}">Change hours / shift</button></div>
+      <div class="rform">
+        <div><label>From</label><input type="date" data-f="start_date" value="${f.start_date}" min="${todayStr()}"></div>
+        <div><label>To</label><input type="date" data-f="end_date" value="${f.end_date}" min="${f.start_date}"></div>
+        ${f.kind === 'leave' ? `
+          <div><label>Leave code</label><select data-f="leave_code">${LEAVE_CODES.map(c => `<option ${f.leave_code === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>`
+        : `
+          <div><label>Shift</label><select data-f="shift_code">${shifts.map(st => `<option value="${st.code}" ${f.shift_code === st.code ? 'selected' : ''}>${esc(st.name)}</option>`).join('')}</select></div>
+          <div><label>Start (optional)</label><input type="time" data-f="start_time" value="${f.start_time}"></div>
+          <div><label>End (optional)</label><input type="time" data-f="end_time" value="${f.end_time}"></div>`}
+      </div>
+      <div class="preview" id="preview">${previewHtml()}</div>
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn primary" id="sendReq">${levelOf(state.me) >= 3 ? 'Submit' : 'Send for approval'}</button><button class="btn" id="resetReq">Clear</button></div>
+    </div>
+    ${(() => { const mineOT = state.otSignups.filter(g => g.staff_id === state.me.id && g.status !== 'withdrawn').sort((a, b) => b.work_date.localeCompare(a.work_date));
+      return mineOT.length ? `<h3 class="sect" style="margin-top:0">My OT sign-ups</h3>${mineOT.map(g => `<div class="req"><div class="top"><div><div class="what">OT · ${esc(shiftByCode(g.shift_code)?.name)}</div>
+        <div class="days">${DOW[dow(g.work_date)]} ${md(g.work_date)} · ${shiftTime(g.work_date, shiftByCode(g.shift_code))}</div></div>
+        <span class="st ${g.status === 'assigned' ? 'approved' : g.status === 'not_selected' ? 'cancelled' : 'pending'}">${g.status === 'interested' ? 'on the list' : g.status === 'not_selected' ? 'not selected' : 'assigned'}</span></div></div>`).join('')}` : ''; })()}
+    <h3 class="sect" style="margin-top:0">My requests</h3>
+    ${mine.length ? mine.map(r => reqCard(r, r.status === 'pending' ? `<div style="margin-top:8px"><button class="btn sm danger" data-cancelreq="${r.id}">Cancel request</button></div>` : '')).join('') : '<p class="muted">No requests yet.</p>'}`;
+}
+
+// ---------- time approval (ASO III, Chief, admin) --------------------
+function openOTList() {
+  const out = [], t = todayStr();
+  for (let i = 0; i <= 120; i++) out.push(...otNeeds(addDays(t, i)));
+  return out;
+}
+function renderApprovals() {
+  if (!isApprover()) return renderSchedule();
+  const pend = state.requests.filter(r => r.status === 'pending').sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const mine = pend.filter(canApprove), others = pend.filter(r => !canApprove(r) && r.staff_id !== state.me?.id);
+  const done = state.requests.filter(r => r.status === 'approved' || r.status === 'denied').sort((a, b) => (b.decided_at || '').localeCompare(a.decided_at || '')).slice(0, 15);
+  const actions = r => {
+    const w = otTriggers(r);
+    return `${w.length ? `<div class="warn">⚠ OT needed: ${esc(otText(w))}</div>` : r.kind === 'leave' && affectedDays(r).some(d => { return COVER_SHIFTS.includes(assignment(staffById(r.staff_id), d).code); }) ? `<div class="okc">Someone else is on duty — no OT needed.</div>` : ''}
+      <div style="margin-top:10px;display:flex;gap:8px"><button class="btn primary" data-decide="${r.id}|1">Approve</button><button class="btn danger" data-decide="${r.id}|0">Deny</button></div>`;
+  };
+  $app.innerHTML = `
+    <h3 class="sect" style="margin-top:0">Waiting for you${mine.length ? ` (${mine.length})` : ''}</h3>
+    ${mine.length ? mine.map(r => reqCard(r, actions(r))).join('') : '<p class="muted">Nothing to approve right now.</p>'}
+    ${others.length ? `<h3 class="sect">Pending — needs the Chief</h3>${others.map(r => reqCard(r)).join('')}` : ''}
+    <h3 class="sect">Open OT</h3>
+    ${(() => { const l = openOTList(); return l.length ? l.map(x => `<div class="req">${otBlock(x).html}</div>`).join('') : '<p class="muted">No open OT.</p>'; })()}
+    <h3 class="sect">Recent decisions</h3>
+    ${done.length ? done.map(r => reqCard(r)).join('') : '<p class="muted">None yet.</p>'}`;
+}
+
+// ---------- activity log ---------------------------------------------
+// Built from requests and OT records. Admin, Chief and ASO III see everyone;
+// ASO II see only their own entries.
+const seesAllLog = () => isAdmin() || levelOf(state.me) >= 2;
+function logEvents() {
+  const ev = [], name = id => staffById(id)?.short_name || '—';
+  const otWhat = g => `${shiftByCode(g.shift_code)?.name} OT · ${DOW[dow(g.work_date)]} ${md(g.work_date)}`;
+  for (const r of state.requests) {
+    const what = `${reqWhat(r)} · ${reqDates(r)}`;
+    ev.push({ at: r.created_at, who: r.staff_id, action: 'Requested', type: 'request', what, by: name(r.staff_id) });
+    if (r.decided_at && r.status !== 'pending') ev.push({ at: r.decided_at, who: r.staff_id, type: 'request',
+      action: { approved: 'Approved', denied: 'Denied', cancelled: 'Cancelled' }[r.status], what,
+      by: r.status === 'cancelled' ? name(r.staff_id) : (r.decided_by_name || '—') });
+  }
+  for (const g of state.otSignups) {
+    ev.push({ at: g.created_at, who: g.staff_id, action: 'Signed up for OT', type: 'ot', what: otWhat(g), by: name(g.staff_id) });
+    if (g.decided_at && g.status !== 'interested') ev.push({ at: g.decided_at, who: g.staff_id, type: 'ot',
+      action: { assigned: 'OT assigned', not_selected: 'OT not selected', withdrawn: 'Withdrew from OT' }[g.status], what: otWhat(g),
+      by: g.status === 'withdrawn' ? name(g.staff_id) : (g.decided_by_name || '—') });
+  }
+  for (const x of state.otPosts) ev.push({ at: x.created_at, who: null, action: 'Opened OT', type: 'ot',
+    what: `${shiftByCode(x.shift_code)?.name} × ${x.slots} · ${DOW[dow(x.work_date)]} ${md(x.work_date)}`, by: x.created_by_name || '—' });
+  return ev.filter(e => e.at).sort((a, b) => b.at.localeCompare(a.at));
+}
+function renderLog() {
+  const all = seesAllLog(), f = state.logFilter ||= { who: 'all', type: 'all' };
+  let ev = logEvents();
+  if (!all) ev = ev.filter(e => e.who === state.me?.id);
+  else if (f.who !== 'all') ev = ev.filter(e => e.who === f.who);
+  if (f.type !== 'all') ev = ev.filter(e => e.type === f.type);
+  const cls = a => /Approved|assigned/i.test(a) && !/not/.test(a) ? 'approved' : /Denied/.test(a) ? 'denied' : /Cancelled|Withdrew|not selected/.test(a) ? 'cancelled' : 'pending';
+  const fmt = iso => { const d = new Date(iso); return `${DOW[d.getDay()]} ${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)} · ${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`; };
+  $app.innerHTML = `
+    <div class="logbar">
+      <h3 class="sect" style="margin:0">${all ? 'Activity log' : 'My activity'}</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${all ? `<select data-logf="who" style="width:auto"><option value="all">All users</option>${activeStaff().map(p => `<option value="${p.id}" ${f.who === p.id ? 'selected' : ''}>${esc(p.short_name)}</option>`).join('')}</select>` : ''}
+        <select data-logf="type" style="width:auto"><option value="all">All activity</option><option value="request" ${f.type === 'request' ? 'selected' : ''}>Time off & changes</option><option value="ot" ${f.type === 'ot' ? 'selected' : ''}>OT</option></select>
+      </div></div>
+    ${ev.length ? `<div class="scroll"><table class="t log"><thead><tr><th>Date / time</th>${all ? '<th>Employee</th>' : ''}<th>Action</th><th>Details</th><th>By</th></tr></thead><tbody>
+      ${ev.map(e => `<tr><td class="nowrap">${fmt(e.at)}</td>${all ? `<td><b>${esc(e.who ? staffById(e.who)?.short_name : '—')}</b></td>` : ''}
+        <td><span class="st ${cls(e.action)}">${esc(e.action)}</span></td><td>${esc(e.what)}</td><td>${esc(e.by)}</td></tr>`).join('')}
+    </tbody></table></div>` : `<p class="muted">No activity yet.</p>`}`;
+}
+
+// ---------- admin ----------------------------------------------------
+// Personal hours editor: pick a shift, set start/end. Keeps a working copy per row so
+// switching the dropdown doesn't lose what was typed for another shift.
+function mainShift(p) {
+  const pat = rotationFor(p.id, todayStr())?.pattern || [], n = c => pat.filter(x => x === c).length;
+  return ['S', 'N', 'D'].find(c => p.hours?.[c]) || ['D', 'S', 'N'].sort((a, b) => n(b) - n(a))[0];
+}
+function hoursEditor(p) {
+  const c = mainShift(p), cur = parseHours(p.hours?.[c]) || ['', ''];
+  return `<div class="hrsed" data-hcopy="${esc(JSON.stringify(p.hours || {}))}" data-hcode="${c}">
+      <div class="hrsrow"><select data-k="hshift" title="Shift">${['D', 'S', 'N'].map(x => `<option value="${x}" ${x === c ? 'selected' : ''}>${esc(shiftByCode(x)?.name)}</option>`).join('')}</select>
+        <label class="mini">Start time<input type="time" data-k="hstart" value="${cur[0]}"></label>
+        <label class="mini">End time<input type="time" data-k="hend" value="${cur[1]}"></label></div>
+      <div class="hrsnote">${hoursSummary(p.hours)}</div></div>`;
+}
+const hoursSummary = h => { const set = Object.entries(h || {}).filter(([, v]) => parseHours(v));
+  return set.length ? 'Personal hours: ' + set.map(([c, v]) => `${esc(shiftByCode(c)?.name)} ${esc(v.replace('-', '–'))}`).join(' · ') : ''; };
+function stashHours(box) {                 // put the visible start/end into the working copy
+  const copy = JSON.parse(box.dataset.hcopy || '{}'), c = box.dataset.hcode;
+  const a = box.querySelector('[data-k=hstart]').value, b = box.querySelector('[data-k=hend]').value;
+  if (a && b) copy[c] = `${a}-${b}`; else delete copy[c];
+  box.dataset.hcopy = JSON.stringify(copy); return copy;
+}
+const readHours = row => stashHours(row.querySelector('.hrsed'));
+function renderAdmin() {
+  if (!isAdmin()) return renderSchedule();
+  const shifts = sortedShifts(), cur = ppStart(todayStr());
+  const ppOpts = [...Array(10)].map((_, i) => addDays(cur, (i - 1) * 14));
+  const patSel = (code, i) => `<select data-pi="${i}" class="${code || ''}"><option value="">–</option>${shifts.map(st => `<option value="${st.code}" ${code === st.code ? 'selected' : ''}>${st.code === 'N' ? 'G' : st.code}</option>`).join('')}</select>`;
+  const people = [...state.staff].sort(byName).map(p => {
+    const r = rotationFor(p.id, todayStr()), pat = r?.pattern || Array(14).fill('');
+    return `<tbody class="person"><tr data-staff="${p.id}">
+      <td><input data-k="short_name" value="${esc(p.short_name)}" style="width:110px"><div class="muted" style="margin-top:3px">${esc(p.full_name)}</div></td>
+      <td><select data-k="grp"><option value="admin" ${p.grp === 'admin' ? 'selected' : ''}>Admin Support</option><option value="duty" ${p.grp === 'duty' ? 'selected' : ''}>Duty</option></select>
+          <select data-k="level" style="margin-top:4px">${[[1, 'ASO II'], [2, 'ASO III (approves ASO II)'], [3, 'Chief (approves all; own requests auto-approved)']].map(([v, l]) => `<option value="${v}" ${levelOf(p) === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+          ${hoursEditor(p)}
+          ${levelOf(p) >= 3 ? '' : `<div class="trainrow"><label class="mini">Training<select data-k="training"><option value="no" ${p.trainee_until ? '' : 'selected'}>No</option><option value="yes" ${p.trainee_until ? 'selected' : ''}>Yes</option></select></label>
+            <label class="mini" data-trainwrap ${p.trainee_until ? '' : 'hidden'}>Training through<input type="date" data-k="trainee_until" value="${esc(p.trainee_until || '')}" min="${todayStr()}"></label></div>`}</td>
+      <td><input data-k="email" value="${esc(p.email)}" style="min-width:190px">
+          <div style="display:flex;gap:8px;margin-top:4px;align-items:center"><select data-k="role" style="width:auto"><option ${p.role === 'user' ? 'selected' : ''}>user</option><option ${p.role === 'admin' ? 'selected' : ''}>admin</option></select>
+          <label style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" data-k="active" ${p.active ? 'checked' : ''}>active</label></div></td>
+      <td><button class="btn sm" data-savestaff="${p.id}">Save</button></td></tr>
+    <tr data-rot="${p.id}"><td class="muted">2-week pattern${r ? `<br>since ${md(r.effective_from)}` : '<br><b>not set</b>'}</td>
+      <td colspan="2"><div class="pat"><span></span>${DL.map(d => `<span style="text-align:center">${d}</span>`).join('')}
+        <span>Wk 1</span>${pat.slice(0, 7).map(patSel).join('')}<span>Wk 2</span>${pat.slice(7).map((c, i) => patSel(c, i + 7)).join('')}</div>
+        </td>
+      <td><button class="btn sm" data-saverot="${p.id}">Apply</button></td></tr></tbody>`;
+  }).join('');
+  const hols = [...state.holidays].sort((a, b) => a.holiday_date.localeCompare(b.holiday_date))
+    .map(h => `<tr><td>${DOW[dow(h.holiday_date)]} ${md(h.holiday_date)}/${h.holiday_date.slice(0, 4)}</td><td>${esc(h.name)}</td><td><button class="btn sm danger" data-delhol="${h.id}">Remove</button></td></tr>`).join('');
+  const shiftRows = shifts.map(st => `<tr data-st="${st.code}"><td><span class="tag ${st.code}">${esc(st.name)}</span></td>
+    ${timed(st) ? `<td><input type="time" data-k="start_time" value="${t5(st.start_time)}"></td><td><input type="time" data-k="end_time" value="${t5(st.end_time)}"></td><td><button class="btn sm" data-savest="${st.code}">Save</button></td>`
+      : `<td colspan="3" class="muted">No fixed time — set each person's start time above</td>`}</tr>`).join('');
+  const log = state.log.slice(0, 40).map(l => `<tr><td class="muted">${new Date(l.changed_at).toLocaleString()}</td><td>${esc(l.actor_email || 'system')}</td><td>${esc(describeLog(l))}</td></tr>`).join('');
+  $app.innerHTML = `
+    <h3 class="sect" style="margin-top:4px">People & patterns</h3>
+    <div class="scroll"><table class="t people"><thead><tr><th>Name on schedule</th><th>Group / level / personal hours</th><th>Login</th><th></th></tr></thead>${people}</table></div>
+    <h3 class="sect">Add person</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <div><label>Full name</label><input id="nName"></div><div><label>Name on schedule</label><input id="nShort" style="width:130px"></div>
+      <div><label>Group</label><select id="nGrp"><option value="duty">Duty</option><option value="admin">Admin Support</option></select></div>
+      <div><label>Email</label><input id="nEmail"></div><button class="btn primary" id="addStaff">Add</button></div>
+    <h3 class="sect">City holidays</h3>
+    <p class="muted">Admin Support is off on these days; Landside Duty works its normal pattern (marked HO).</p>
+    <div class="scroll"><table class="t"><tbody>${hols || '<tr><td class="muted">None</td></tr>'}</tbody></table></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:8px">
+      <div><label>Date</label><input type="date" id="hDate"></div><div><label>Name</label><input id="hName" placeholder="e.g. New Year's Day"></div>
+      <button class="btn primary" id="addHol">Add holiday</button></div>
+    <h3 class="sect">Shift hours</h3>
+    <div class="scroll"><table class="t"><tbody>${shiftRows}</tbody></table></div>
+    <h3 class="sect">Recent changes</h3>
+    <div class="scroll"><table class="t"><tbody>${log || '<tr><td class="muted">No changes yet.</td></tr>'}</tbody></table></div>`;
+}
+function describeLog(l) {
+  const d = l.new_data || l.old_data || {};
+  const who = state.staff.find(p => p.id === d.staff_id)?.short_name || d.short_name || '';
+  if (l.table_name === 'exceptions') return `${who} ${d.work_date ? md(d.work_date) : ''} → ${l.action === 'DELETE' ? 'regular' : d.kind === 'off' ? (d.leave_code || 'off') : shiftByCode(d.shift_code)?.name}`;
+  if (l.table_name === 'rotations') return `${who} new pattern from ${d.effective_from ? md(d.effective_from) : ''}`;
+  if (l.table_name === 'holidays') return `Holiday ${l.action.toLowerCase()} ${d.holiday_date || ''} ${d.name || ''}`;
+  return `${l.table_name} ${l.action.toLowerCase()} ${who}`;
+}
+
+// ---------- sign-in screen (nothing else is shown until you sign in) ----
+const $auth = document.getElementById('auth'), $shell = document.getElementById('shell');
+const DISCLAIMER = `<p><b>Internal scheduling tool for LAX Landside Operations.</b> This app does not replace Workday. Each employee remains responsible for entering and approving their time in Workday.</p>
+  <p>App support: John Chang – <a href="mailto:jchang@lawa.org">jchang@lawa.org</a></p>`;
+const LOGO = `<img class="logo" src="lawa-logo.png" alt="LAWA | LAX" onerror="this.remove()">`;
+function renderLogin() {
+  $auth.innerHTML = `<form class="card" id="loginForm" autocomplete="on">
+      ${LOGO}
+      <h1>Landside Ops Schedule</h1>
+      <p class="sub">LAX Landside Operations</p>
+      <div class="f"><label for="lEmail">LAWA email or ID</label><input type="text" id="lEmail" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="jchang" required></div>
+      <div class="f"><label for="lPw">Password</label><input type="password" id="lPw" autocomplete="current-password" required></div>
+      <button class="btn primary" type="submit">Sign in</button>
+      <p class="note">Accounts are set up by the admin. Please don't reuse your LAWA network password here.</p>
+    </form>
+    <div class="foot">${DISCLAIMER}</div>`;
+  setTimeout(() => document.getElementById('lEmail')?.focus(), 30);
+}
+function renderChangePw() {
+  $auth.innerHTML = `<div class="card">
+      ${LOGO}
+      <h1>Choose your password</h1>
+      <p class="sub">You signed in with the default password. Pick your own to continue.</p>
+      <div class="f"><label for="newPw">New password</label><input type="password" id="newPw" autocomplete="new-password" minlength="8"></div>
+      <div class="f"><label for="newPw2">Type it again</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
+      <button class="btn primary" id="setPw">Save and continue</button>
+      <p class="note">At least 8 characters. Use something different from your LAWA network password.</p>
+      <p class="note"><a href="#" id="signOutLink">Sign out</a></p>
+    </div>`;
+}
+function renderAccount() {
+  const name = state.me?.full_name || 'Landside Admin';
+  $app.innerHTML = `<div class="form card" style="max-width:420px">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><div class="avatar" style="width:44px;height:44px;font-size:15px">${esc(initials(name))}</div>
+      <div><div style="font-weight:700;font-size:16px">${esc(name)}</div><div class="muted">${esc(state.me?.email || 'admin')} · ${esc(roleText())}</div></div></div>
+    ${state.me || isAdmin() ? '' : `<p class="gap">This login isn't linked to anyone on the roster. Ask the admin to set your email.</p>`}
+    ${DEMO ? `<p class="muted">Password changes aren't available in the demo.</p>` : `
+    <div class="f"><label>New password</label><input type="password" id="newPw" autocomplete="new-password" minlength="8"></div>
+    <div class="f"><label>Type it again</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
+    <button class="btn primary" id="setPw">Change password</button>`}
+    <button class="btn danger" id="signOut2" style="margin-left:6px">Sign out</button></div>`;
+}
+
+function render() {
+  const authed = DEMO ? state.signedIn : state.loggedIn && state.signedIn;
+  if (!authed || state.mustChange) {
+    $shell.hidden = true; $auth.hidden = false;
+    if (!$modal.innerHTML) (authed ? renderChangePw : renderLogin)();
+    if (!authed) state.tab = 'schedule';
+    return;
+  }
+  $auth.hidden = true; $auth.innerHTML = ''; $shell.hidden = false;
+  document.getElementById('appfoot').innerHTML = DISCLAIMER;
+  renderTabs();
+  ({ schedule: renderSchedule, requests: renderRequests, approvals: renderApprovals, admin: renderAdmin, log: renderLog, account: renderAccount })[state.tab]();
+}
+async function refresh() {
+  try { await api.load(); if (state.tab === 'admin') await api.loadLog(); } catch (e) { toast(e.message, true); }
+  render();
+}
+
+// ---------- events ---------------------------------------------------
+document.addEventListener('click', async e => {
+  if (e.target.id === 'signOutLink') { e.preventDefault(); return run(() => api.signOut(), 'Signed out'); }
+  if (e.target.dataset?.close && e.target === e.target.closest('[data-close]')) { $modal.innerHTML = ''; return; }
+  const otc = e.target.closest('td[data-ot]');
+  if (otc) return openOT(otc.dataset.ot);
+  const cell = e.target.closest('td[data-cell]');
+  if (cell) {
+    const [id, s] = cell.dataset.cell.split('|');
+    if (isAdmin()) return openEditor(id, s);
+    state.draft = newDraft(s); state.tab = 'requests'; render(); window.scrollTo(0, 0); return;
+  }
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.close) { $modal.innerHTML = ''; return; }
+  if (t.dataset.set) return applyEdit(t.dataset.set);
+  if (t.dataset.custom) { document.getElementById('customRow').style.display = 'flex'; document.getElementById('customCode').focus(); return; }
+  if (t.dataset.setcustom) { const c = document.getElementById('customCode').value.trim().toUpperCase(); if (c) applyEdit('L:' + c); return; }
+  if (t.dataset.tab) { state.tab = t.dataset.tab; if (t.dataset.tab === 'admin') await api.loadLog(); return render(); }
+  if (t.dataset.kind) { state.draft.kind = t.dataset.kind; return render(); }
+  if (t.id === 'resetReq') { state.draft = newDraft(); return render(); }
+  if (t.id === 'sendReq') {
+    const f = state.draft, r = draftToRequest(f);
+    if (r.end_date < r.start_date) return toast('End date is before start date', true);
+    if (r.start_date < todayStr()) return toast('Requests can only be for today or later', true);
+    if (r.kind === 'leave' && !r.leave_code) return toast('Enter a leave code', true);
+    if (r.kind === 'change' && !!r.start_time !== !!r.end_time) return toast('Enter both start and end time, or neither', true);
+    return run(() => api.submitRequest(r), 'Request sent').then(ok => { if (ok) { state.draft = null; render(); } });
+  }
+  if (t.dataset.otpick) { state.otPick = t.dataset.otpick; return openOT($modal.dataset.ot); }
+  if (t.id === 'otPost' || t.dataset.otsignup || t.dataset.otwithdraw || t.dataset.otassign || t.dataset.otunpost) {
+    const reopen = $modal.innerHTML ? $modal.dataset.ot : null;
+    const fn = t.id === 'otPost' ? () => api.otPost(reopen, state.otPick, +document.getElementById('otSlots').value)
+      : t.dataset.otunpost ? () => api.otUnpost(...t.dataset.otunpost.split('|'))
+      : t.dataset.otsignup ? () => api.otSignup(...t.dataset.otsignup.split('|'))
+      : t.dataset.otwithdraw ? () => api.otWithdraw(...t.dataset.otwithdraw.split('|')) : () => api.otAssign(t.dataset.otassign);
+    const msg = t.id === 'otPost' ? 'OT is open for sign-up' : t.dataset.otunpost ? 'OT removed' : t.dataset.otsignup ? "You're on the OT list" : t.dataset.otwithdraw ? 'Removed from the OT list' : 'OT assigned';
+    return run(fn, msg).then(() => { if (reopen) openOT(reopen); });
+  }
+  if (t.dataset.cancelreq) return run(() => api.cancelRequest(t.dataset.cancelreq), 'Request cancelled');
+  if (t.dataset.decide) { const [id, a] = t.dataset.decide.split('|'); return run(() => api.decideRequest(id, a === '1'), a === '1' ? 'Approved' : 'Denied'); }
+  if (t.dataset.span) { state.span = +t.dataset.span; return render(); }
+  if (t.dataset.pp !== undefined) { const n = +t.dataset.pp, cur = ppStart(todayStr()); state.pp = n === 0 ? cur : addDays(state.pp, n * 14 * state.span); if (state.pp < cur) state.pp = cur; return render(); }
+  if (t.id === 'signOut' || t.id === 'signOut2') return run(() => api.signOut(), 'Signed out');
+  if (t.id === 'setPw') {
+    const pw = document.getElementById('newPw').value, pw2 = document.getElementById('newPw2');
+    if (pw.length < 8) return toast('Use at least 8 characters', true);
+    const hex = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw.toLowerCase())))].map(b => b.toString(16).padStart(2, '0')).join('');
+    if (hex === '5bff375019c86eceb9fceaef032998b9ece0987e0314fa81bad7de11222a2d43') return toast("Can't reuse the default password", true);   // hash of the default password
+    if (pw2 && pw2.value !== pw) return toast("Passwords don't match", true);
+    const was = state.mustChange;
+    return run(() => api.changePassword(pw), 'Password changed').then(ok => { if (ok && was) { state.tab = 'schedule'; render(); } });
+  }
+  if (t.dataset.savestaff) {
+    const trow = document.querySelector(`tr[data-staff="${t.dataset.savestaff}"]`);
+    if (trow.querySelector('[data-k=training]')?.value === 'yes' && !trow.querySelector('[data-k=trainee_until]').value) return toast('Pick the last day of training', true);
+    const box = document.querySelector(`tr[data-staff="${t.dataset.savestaff}"] .hrsed`);
+    const a = box.querySelector('[data-k=hstart]').value, b = box.querySelector('[data-k=hend]').value;
+    if (!!a !== !!b) return toast('Enter both a start and an end time, or leave both blank', true);
+    if (a && a === b) return toast('Start and end time can’t be the same', true);
+    const row = document.querySelector(`tr[data-staff="${t.dataset.savestaff}"]`), v = k => row.querySelector(`[data-k=${k}]`);
+    return run(() => api.saveStaff({ id: t.dataset.savestaff, short_name: v('short_name').value.trim(), grp: v('grp').value, level: +v('level').value, hours: readHours(row), trainee_until: v('training')?.value === 'yes' ? v('trainee_until').value : null,
+      email: v('email').value.trim().toLowerCase() || null, role: v('role').value, active: v('active').checked }), 'Saved');
+  }
+  if (t.dataset.saverot) {
+    const row = document.querySelector(`tr[data-rot="${t.dataset.saverot}"]`);
+    const pattern = [...row.querySelectorAll('[data-pi]')].sort((a, b) => a.dataset.pi - b.dataset.pi).map(s => s.value);
+    return run(() => api.setRotation(t.dataset.saverot, pattern, ppStart(todayStr())), 'Pattern updated');
+  }
+  if (t.dataset.savest) {
+    const row = document.querySelector(`tr[data-st="${t.dataset.savest}"]`);
+    return run(() => api.saveShiftType({ code: t.dataset.savest, start_time: row.querySelector('[data-k=start_time]').value, end_time: row.querySelector('[data-k=end_time]').value }), 'Shift hours saved');
+  }
+  if (t.dataset.delhol) return run(() => api.deleteHoliday(t.dataset.delhol), 'Holiday removed');
+  if (t.id === 'addHol') {
+    const d = document.getElementById('hDate').value, n = document.getElementById('hName').value.trim();
+    if (!d) return toast('Pick a date', true);
+    return run(() => api.addHoliday({ holiday_date: d, name: n || 'Holiday' }), 'Holiday added');
+  }
+  if (t.id === 'addStaff') {
+    const v = id => document.getElementById(id).value.trim();
+    if (!v('nName') || !v('nShort')) return toast('Full name and schedule name are required', true);
+    return run(() => api.saveStaff({ full_name: v('nName'), short_name: v('nShort'), title: '', grp: v('nGrp'), email: v('nEmail').toLowerCase() || null, role: 'user', active: true }), 'Added — set their pattern below');
+  }
+});
+document.addEventListener('change', e => {
+  const s = e.target;
+  if (s.dataset?.logf) { state.logFilter[s.dataset.logf] = s.value; return render(); }
+  if (s.dataset?.k === 'training') {
+    const wrap = s.closest('.trainrow').querySelector('[data-trainwrap]');
+    wrap.hidden = s.value !== 'yes';
+    if (s.value === 'yes') wrap.querySelector('input').focus();
+    return;
+  }
+  if (s.dataset?.k === 'hshift') {
+    const box = s.closest('.hrsed'), copy = stashHours(box), cur = parseHours(copy[s.value]) || ['', ''];
+    box.dataset.hcode = s.value;
+    box.querySelector('[data-k=hstart]').value = cur[0]; box.querySelector('[data-k=hend]').value = cur[1];
+    box.querySelector('.hrsnote').innerHTML = hoursSummary(copy);
+    return;
+  }
+  if (s.dataset?.pi !== undefined) s.className = s.value;
+  if (s.dataset?.f && state.draft) {
+    state.draft[s.dataset.f] = s.value;
+    if (s.dataset.f === 'start_date' && (!state.draft.end_date || state.draft.end_date < s.value)) state.draft.end_date = s.value;
+    if (s.dataset.f === 'leave_code' || s.dataset.f === 'start_date') return render();
+    const pv = document.getElementById('preview'); if (pv) pv.innerHTML = previewHtml();
+  }
+});
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'loginForm') return;
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Signing in…';
+  run(() => api.signIn(loginEmail(document.getElementById('lEmail').value), document.getElementById('lPw').value))
+    .then(ok => { if (ok) { document.getElementById('toast').innerHTML = ''; state.tab = 'schedule'; render(); } else { btn.disabled = false; btn.textContent = 'Sign in'; } });
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $modal.innerHTML = ''; });
+setInterval(() => { if (state.tab === 'schedule' && !$modal.innerHTML && $auth.hidden) render(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$modal.innerHTML && state.tab !== 'requests') refresh(); });
+
+try { await api.init(); } catch (e) { $auth.hidden = false; $auth.innerHTML = `<div class="card"><p class="gap">Could not start: ${esc(e.message)}</p></div>`; }
+await refresh();
+</script>
+</body>
+</html>
