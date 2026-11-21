@@ -320,7 +320,7 @@ const state = {
   admin: false, signedIn: false, mustChange: false, requests: [], otSignups: [], otPosts: [], messages: [], draft: null, otPick: 'S',
   shiftTypes: [], staff: [], rotations: [], exceptions: [], holidays: [],
   me: null, loggedIn: false, tab: 'schedule', pp: ppStart(todayStr()),
-  span: window.innerWidth >= 1000 ? 2 : 1, log: [],
+  span: window.innerWidth >= 1000 ? 2 : 1, log: [], jumpToday: true, gridX: 0,
 };
 
 // ---------- schedule logic -------------------------------------------
@@ -798,6 +798,20 @@ function renderTabs() {
     <button class="iconbtn" id="signOut" title="Sign out">${ICON.out}<span>Sign out</span></button>`;
 }
 
+// Schedule grid: open on today (today's column is the first one after the names);
+// after that, keep wherever the user scrolled to (the screen refreshes every minute).
+function placeGrid() {
+  const gw = $app.querySelector('.gridwrap'); if (!gw) return;
+  const td = gw.querySelector('thead th.today'), nm = gw.querySelector('thead th.nm');
+  if (state.jumpToday && td) {
+    gw.scrollLeft = 0;
+    const x = td.getBoundingClientRect().left - gw.getBoundingClientRect().left - (nm?.offsetWidth || 0);
+    gw.scrollLeft = Math.max(0, x);
+    state.jumpToday = false;
+  } else gw.scrollLeft = state.gridX || 0;
+  state.gridX = gw.scrollLeft;
+  gw.addEventListener('scroll', () => { state.gridX = gw.scrollLeft; }, { passive: true });
+}
 function renderSchedule() {
   const now = new Date(), today = todayStr(), shifts = sortedShifts();
   // --- today card
@@ -882,6 +896,7 @@ function renderSchedule() {
       <span><b>T</b> trainee (not counted)</span>
       <span>${isAdmin() ? 'Tap any cell to change it.' : state.me ? 'Tap a day in your row to request time off or a change.' : 'Sign in to request changes.'} Grave counts on the day it ends.</span>
     </div>`;
+  placeGrid();
 }
 
 // ---------- day editor (bottom sheet) -------------------------------
@@ -1394,7 +1409,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.set) return applyEdit(t.dataset.set);
   if (t.dataset.custom) { document.getElementById('customRow').style.display = 'flex'; document.getElementById('customCode').focus(); return; }
   if (t.dataset.setcustom) { const c = document.getElementById('customCode').value.trim().toUpperCase(); if (c) applyEdit('L:' + c); return; }
-  if (t.dataset.tab) { state.tab = t.dataset.tab; chatPolling(t.dataset.tab === 'chat'); if (t.dataset.tab === 'chat') { try { await api.loadMessages(); } catch {} } if (t.dataset.tab === 'admin') await api.loadLog(); if (t.dataset.tab === 'account') { state.prefs = null; loadPrefs(); } return render(); }
+  if (t.dataset.tab) { if (t.dataset.tab === 'schedule' && state.tab !== 'schedule') state.jumpToday = true; state.tab = t.dataset.tab; chatPolling(t.dataset.tab === 'chat'); if (t.dataset.tab === 'chat') { try { await api.loadMessages(); } catch {} } if (t.dataset.tab === 'admin') await api.loadLog(); if (t.dataset.tab === 'account') { state.prefs = null; loadPrefs(); } return render(); }
   if (t.dataset.kind) { state.draft.kind = t.dataset.kind; return render(); }
   if (t.id === 'resetReq') { state.draft = newDraft(); return render(); }
   if (t.id === 'sendReq') {
@@ -1421,8 +1436,9 @@ document.addEventListener('click', async e => {
   }
   if (t.dataset.cancelreq) return run(() => api.cancelRequest(t.dataset.cancelreq), 'Request cancelled');
   if (t.dataset.decide) { const [id, a] = t.dataset.decide.split('|'); return run(() => api.decideRequest(id, a === '1'), a === '1' ? 'Approved' : 'Denied'); }
-  if (t.dataset.span) { state.span = +t.dataset.span; return render(); }
-  if (t.dataset.pp !== undefined) { const n = +t.dataset.pp, cur = ppStart(todayStr()); state.pp = n === 0 ? cur : addDays(state.pp, n * 14 * state.span); if (state.pp < cur) state.pp = cur; return render(); }
+  if (t.dataset.span) { state.span = +t.dataset.span; state.jumpToday = true; return render(); }
+  if (t.dataset.pp !== undefined) { const n = +t.dataset.pp, cur = ppStart(todayStr()); state.pp = n === 0 ? cur : addDays(state.pp, n * 14 * state.span); if (state.pp < cur) state.pp = cur;
+    state.gridX = 0; state.jumpToday = state.pp === cur; return render(); }
   if (t.id === 'pushOn' || t.id === 'pushOff') {
     t.disabled = true;
     try { await (t.id === 'pushOn' ? pushOn() : pushOff()); toast(t.id === 'pushOn' ? 'Notifications enabled on this device' : 'Notifications disabled on this device'); }
@@ -1508,7 +1524,7 @@ document.addEventListener('submit', e => {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Signing in…';
   run(() => api.signIn(loginEmail(document.getElementById('lEmail').value), document.getElementById('lPw').value))
-    .then(ok => { if (ok) { document.getElementById('toast').innerHTML = ''; state.tab = 'schedule'; render(); } else { btn.disabled = false; btn.textContent = 'Sign in'; } });
+    .then(ok => { if (ok) { document.getElementById('toast').innerHTML = ''; state.tab = 'schedule'; state.jumpToday = true; render(); } else { btn.disabled = false; btn.textContent = 'Sign in'; } });
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') $modal.innerHTML = '';
