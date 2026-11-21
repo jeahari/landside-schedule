@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Landside Ops Schedule</title>
+<title>LAX Landside Schedule</title>
 <meta name="theme-color" content="#0E2A47">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -163,6 +163,24 @@
   .sect{margin:24px 0 8px;font-size:15px}
   table.people{border:0;background:none}
   .hrsed{margin-top:6px}
+  .chat{max-width:760px;margin:0 auto}
+  .cnote{font-size:12px;color:#6B5600;background:#FFF8DD;border:1px solid #F0E2A6;border-radius:10px;padding:8px 12px;margin-bottom:10px}
+  .clist{padding:4px 2px 8px}
+  .cday{text-align:center;margin:14px 0 8px}
+  .cday span{font-size:11.5px;font-weight:600;color:var(--muted);background:#E9EDF2;border-radius:999px;padding:3px 10px}
+  .cmsg{display:flex;flex-direction:column;align-items:flex-start;margin-top:10px;max-width:82%}
+  .cmsg.cont{margin-top:3px}
+  .cmsg.mine{align-items:flex-end;margin-left:auto}
+  .cwho{font-size:12px;font-weight:700;color:var(--navy2);margin:0 0 3px 4px}
+  .cbubble{background:#fff;border:1px solid var(--line);border-radius:16px 16px 16px 5px;padding:8px 12px;font-size:14.5px;line-height:1.4;white-space:normal;word-wrap:break-word;overflow-wrap:anywhere}
+  .cmsg.mine .cbubble{background:var(--navy);border-color:var(--navy);color:#fff;border-radius:16px 16px 5px 16px}
+  .cmeta{font-size:11px;color:var(--muted);margin:3px 6px 0}
+  .clink{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer}
+  .cbar{position:sticky;bottom:0;display:flex;gap:8px;align-items:flex-end;background:var(--bg);padding:10px 0 12px;border-top:1px solid var(--line)}
+  .cbar textarea{flex:1;resize:none;font:15px Inter,system-ui;padding:10px 12px;border:1px solid #CFD7E1;border-radius:12px;min-height:42px;max-height:140px;background:#fff}
+  .cbar textarea:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(23,59,97,.15)}
+  .cbar .btn{height:42px;padding:0 18px;border-radius:12px}
+  @media (max-width:700px){ .cbar{bottom:calc(58px + env(safe-area-inset-bottom))} .cmsg{max-width:88%} }
   .logbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   table.log td{font-size:13px} table.log .nowrap{white-space:nowrap;color:var(--muted)}
   .trainrow{display:flex;gap:6px;align-items:flex-end;margin-top:8px;flex-wrap:wrap}
@@ -211,7 +229,7 @@
 <div id="shell" hidden>
   <header class="top"><div class="hrow">
     <div class="brand"><img class="logo" src="lawa-logo.png" alt="LAWA | LAX" onerror="this.nextElementSibling.remove();this.remove()"><span class="div"></span>
-      <div class="t">Landside Ops Schedule<small>LAX Landside Operations</small></div></div>
+      <div class="t">LAX Landside Schedule<small>Landside Operations</small></div></div>
     <div class="userbox" id="who"></div>
   </div></header>
   <nav class="tabs"><div class="in" id="tabs"></div></nav>
@@ -267,7 +285,7 @@ const ppLabel = start => `PP ${pad(ppNumber(start))}`;
 
 // ---------- state ----------------------------------------------------
 const state = {
-  admin: false, signedIn: false, mustChange: false, requests: [], otSignups: [], otPosts: [], draft: null, otPick: 'S',
+  admin: false, signedIn: false, mustChange: false, requests: [], otSignups: [], otPosts: [], messages: [], draft: null, otPick: 'S',
   shiftTypes: [], staff: [], rotations: [], exceptions: [], holidays: [],
   me: null, loggedIn: false, tab: 'schedule', pp: ppStart(todayStr()),
   span: window.innerWidth >= 1000 ? 2 : 1, log: [],
@@ -459,13 +477,13 @@ function rotationPlan(rotations, staffId, from) {
 // =====================================================================
 //  Data layer — Supabase, or in-memory demo
 // =====================================================================
-const KEYS = ['shiftTypes', 'staff', 'rotations', 'exceptions', 'holidays', 'requests', 'otSignups', 'otPosts'];
+const KEYS = ['shiftTypes', 'staff', 'rotations', 'exceptions', 'holidays', 'requests', 'otSignups', 'otPosts', 'messages'];
 const demoApi = {
   db: null,
   async init() {
     try { this.db = JSON.parse(localStorage.getItem('landside-demo-v11') || 'null'); } catch { this.db = null; }
     if (!this.db) this.db = (await import('./demo-data.js')).demoSeed();
-    this.db.requests ||= []; this.db.otSignups ||= []; this.db.otPosts ||= [];
+    this.db.requests ||= []; this.db.otSignups ||= []; this.db.otPosts ||= []; this.db.messages ||= [];
     try { this.who = localStorage.getItem('landside-demo-user-v11'); } catch {}
     state.loggedIn = true;
   },
@@ -542,6 +560,19 @@ const demoApi = {
     else this.db.otSignups.push({ id: crypto.randomUUID(), work_date: d, shift_code: code, staff_id: me.id, status: 'interested', created_at: new Date().toISOString() });
     this.save();
   },
+  async postMessage(body) {
+    const t = body.trim(); if (!t) throw new Error('Message is empty');
+    const nm = state.me?.short_name || (isAdmin() ? 'Admin' : null); if (!nm) throw new Error('Sign in first');
+    this.db.messages.push({ id: (this.db.messages.at(-1)?.id || 0) + 1, created_at: new Date().toISOString(), staff_id: state.me?.id || null,
+      sender_email: state.me?.email || 'admin', sender_name: nm, body: t.slice(0, 1000) });
+    this.save();
+  },
+  async deleteMessage(id) {
+    const m = this.db.messages.find(x => x.id === id);
+    if (!m || !(isAdmin() || (state.me && m.staff_id === state.me.id))) throw new Error('You can only delete your own messages');
+    this.db.messages = this.db.messages.filter(x => x.id !== id); this.save();
+  },
+  async loadMessages() { state.messages = structuredClone(this.db.messages); },
   async otPost(d, code, slots) {
     if (!canAssignOT()) throw new Error('Only an ASO III, the Chief or the admin can open OT');
     const ex = this.db.otPosts.find(x => x.work_date === d && x.shift_code === code && x.status === 'open');
@@ -614,6 +645,7 @@ const supaApi = {
       this.sb.from('ot_posts').select('*').eq('status', 'open').gte('work_date', since),
     ]);
     [state.shiftTypes, state.staff, state.rotations, state.exceptions, state.holidays, state.requests, state.otSignups, state.otPosts] = r.map(x => this.ok(x));
+    await this.loadMessages().catch(() => { state.messages = []; });
     state.me = state.staff.find(p => p.email === this.email) || null;
     state.admin = !!this.ok(await this.sb.rpc('is_admin'));
     state.signedIn = true;
@@ -650,6 +682,12 @@ const supaApi = {
   async otSignup(d, code) { this.ok(await this.sb.rpc('ot_signup', { p_date: d, p_code: code })); },
   async otWithdraw(d, code) { this.ok(await this.sb.rpc('ot_withdraw', { p_date: d, p_code: code })); },
   async otAssign(id) { this.ok(await this.sb.rpc('ot_assign', { p_signup: id })); },
+  async loadMessages() {
+    const rows = this.ok(await this.sb.from('messages').select('*').order('id', { ascending: false }).limit(300));
+    state.messages = rows.reverse();
+  },
+  async postMessage(body) { this.ok(await this.sb.rpc('post_message', { p_body: body })); },
+  async deleteMessage(id) { this.ok(await this.sb.from('messages').delete().eq('id', id)); },
   async otPost(d, code, slots) { this.ok(await this.sb.rpc('ot_post', { p_date: d, p_code: code, p_slots: slots })); },
   async otUnpost(d, code) { this.ok(await this.sb.rpc('ot_unpost', { p_date: d, p_code: code })); },
 };
@@ -694,6 +732,7 @@ const ICON = {
   requests: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
   approvals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
   admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg>',
   log: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   account: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
   out: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
@@ -705,6 +744,7 @@ function renderTabs() {
   if (state.me) tabs.push(['requests', 'My requests']);
   if (isApprover()) { const n = state.requests.filter(r => r.status === 'pending' && canApprove(r)).length + openOTList().filter(x => x.canAssignNow && signupsFor(x.date, x.code).some(g => g.status === 'interested')).length; tabs.push(['approvals', `Time approval${n ? `<span class="badge">${n}</span>` : ''}`]); }
   if (isAdmin()) tabs.push(['admin', 'Admin']);
+  tabs.push(['chat', `Chat${unreadCount() ? `<span class="badge">${unreadCount()}</span>` : ''}`]);
   tabs.push(['log', 'Log']);
   tabs.push(['account', 'Account']);
   if (!tabs.some(t => t[0] === state.tab)) state.tab = 'schedule';
@@ -975,6 +1015,52 @@ function renderApprovals() {
     ${done.length ? done.map(r => reqCard(r)).join('') : '<p class="muted">None yet.</p>'}`;
 }
 
+// ---------- group chat -----------------------------------------------
+const myChatKey = () => `landside-chat-seen-${state.me?.id || 'admin'}`;
+const lastSeen = () => { try { return +localStorage.getItem(myChatKey()) || 0; } catch { return 0; } };
+const markSeen = () => { const id = state.messages.at(-1)?.id || 0; try { localStorage.setItem(myChatKey(), id); } catch {} };
+const isMine = m => (state.me && m.staff_id === state.me.id) || (!state.me && isAdmin() && !m.staff_id);
+const unreadCount = () => { const seen = lastSeen(); return state.tab === 'chat' ? 0 : state.messages.filter(m => m.id > seen && !isMine(m)).length; };
+function dayLabel(iso) {
+  const d = toStr(new Date(iso)), t = todayStr();
+  if (d === t) return 'Today';
+  if (d === addDays(t, -1)) return 'Yesterday';
+  const x = new Date(iso); return `${DOW[x.getDay()]}, ${MON[x.getMonth()]} ${x.getDate()}${x.getFullYear() !== new Date().getFullYear() ? ', ' + x.getFullYear() : ''}`;
+}
+function renderChat(keepDraft) {
+  const draft = keepDraft ? (document.getElementById('chatBox')?.value || '') : '';
+  let html = '', lastDay = '', lastWho = null;
+  for (const m of state.messages) {
+    const day = dayLabel(m.created_at);
+    if (day !== lastDay) { html += `<div class="cday"><span>${day}</span></div>`; lastDay = day; lastWho = null; }
+    const mine = isMine(m), t = new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const canDel = mine || isAdmin(), cont = lastWho === (m.staff_id || m.sender_name);
+    html += `<div class="cmsg ${mine ? 'mine' : ''} ${cont ? 'cont' : ''}">
+      ${!mine && !cont ? `<div class="cwho">${esc(m.sender_name)}</div>` : ''}
+      <div class="cbubble">${esc(m.body).replace(/\n/g, '<br>')}</div>
+      <div class="cmeta">${t}${canDel ? ` · <button class="clink" data-delmsg="${m.id}">Delete</button>` : ''}</div></div>`;
+    lastWho = m.staff_id || m.sender_name;
+  }
+  $app.innerHTML = `<div class="chat">
+      <div class="cnote">Group chat for Landside Ops schedule coordination. Not for official or operational communications — use Teams or email for those.</div>
+      <div class="clist" id="clist">${html || '<p class="muted" style="text-align:center;margin:30px 0">No messages yet. Say hello 👋</p>'}</div>
+      <form class="cbar" id="chatForm"><textarea id="chatBox" rows="1" maxlength="1000" placeholder="Message the group…">${esc(draft)}</textarea>
+        <button class="btn primary" type="submit">Send</button></form>
+    </div>`;
+  markSeen(); renderTabs();
+  requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
+}
+let chatTimer = null;
+function chatPolling(on) {
+  clearInterval(chatTimer); chatTimer = null;
+  if (on) chatTimer = setInterval(async () => {
+    if (state.tab !== 'chat' || $modal.innerHTML) return;
+    const before = state.messages.at(-1)?.id;
+    try { await api.loadMessages(); } catch { return; }
+    if (state.messages.at(-1)?.id !== before) renderChat(true);
+  }, 8000);
+}
+
 // ---------- activity log ---------------------------------------------
 // Built from requests and OT records. Admin, Chief and ASO III see everyone;
 // ASO II see only their own entries.
@@ -1110,8 +1196,8 @@ const LOGO = `<img class="logo" src="lawa-logo.png" alt="LAWA | LAX" onerror="th
 function renderLogin() {
   $auth.innerHTML = `<form class="card" id="loginForm" autocomplete="on">
       ${LOGO}
-      <h1>Landside Ops Schedule</h1>
-      <p class="sub">LAX Landside Operations</p>
+      <h1>LAX Landside Schedule</h1>
+      <p class="sub">Los Angeles International Airport · Landside Operations</p>
       <div class="f"><label for="lEmail">LAWA email or ID</label><input type="text" id="lEmail" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="jchang" required></div>
       <div class="f"><label for="lPw">Password</label><input type="password" id="lPw" autocomplete="current-password" required></div>
       <button class="btn primary" type="submit">Sign in</button>
@@ -1156,7 +1242,7 @@ function render() {
   $auth.hidden = true; $auth.innerHTML = ''; $shell.hidden = false;
   document.getElementById('appfoot').innerHTML = DISCLAIMER;
   renderTabs();
-  ({ schedule: renderSchedule, requests: renderRequests, approvals: renderApprovals, admin: renderAdmin, log: renderLog, account: renderAccount })[state.tab]();
+  ({ schedule: renderSchedule, requests: renderRequests, approvals: renderApprovals, admin: renderAdmin, chat: renderChat, log: renderLog, account: renderAccount })[state.tab]();
 }
 async function refresh() {
   try { await api.load(); if (state.tab === 'admin') await api.loadLog(); } catch (e) { toast(e.message, true); }
@@ -1180,7 +1266,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.set) return applyEdit(t.dataset.set);
   if (t.dataset.custom) { document.getElementById('customRow').style.display = 'flex'; document.getElementById('customCode').focus(); return; }
   if (t.dataset.setcustom) { const c = document.getElementById('customCode').value.trim().toUpperCase(); if (c) applyEdit('L:' + c); return; }
-  if (t.dataset.tab) { state.tab = t.dataset.tab; if (t.dataset.tab === 'admin') await api.loadLog(); return render(); }
+  if (t.dataset.tab) { state.tab = t.dataset.tab; chatPolling(t.dataset.tab === 'chat'); if (t.dataset.tab === 'chat') { try { await api.loadMessages(); } catch {} } if (t.dataset.tab === 'admin') await api.loadLog(); return render(); }
   if (t.dataset.kind) { state.draft.kind = t.dataset.kind; return render(); }
   if (t.id === 'resetReq') { state.draft = newDraft(); return render(); }
   if (t.id === 'sendReq') {
@@ -1200,6 +1286,10 @@ document.addEventListener('click', async e => {
       : t.dataset.otwithdraw ? () => api.otWithdraw(...t.dataset.otwithdraw.split('|')) : () => api.otAssign(t.dataset.otassign);
     const msg = t.id === 'otPost' ? 'OT is open for sign-up' : t.dataset.otunpost ? 'OT removed' : t.dataset.otsignup ? "You're on the OT list" : t.dataset.otwithdraw ? 'Removed from the OT list' : 'OT assigned';
     return run(fn, msg).then(() => { if (reopen) openOT(reopen); });
+  }
+  if (t.dataset.delmsg) {
+    try { await api.deleteMessage(+t.dataset.delmsg); await api.loadMessages(); renderChat(true); toast('Message deleted'); } catch (err) { toast(err.message, true); }
+    return;
   }
   if (t.dataset.cancelreq) return run(() => api.cancelRequest(t.dataset.cancelreq), 'Request cancelled');
   if (t.dataset.decide) { const [id, a] = t.dataset.decide.split('|'); return run(() => api.decideRequest(id, a === '1'), a === '1' ? 'Approved' : 'Denied'); }
@@ -1272,14 +1362,26 @@ document.addEventListener('change', e => {
   }
 });
 document.addEventListener('submit', e => {
+  if (e.target.id === 'chatForm') {
+    e.preventDefault();
+    const box = document.getElementById('chatBox'), body = box.value.trim(); if (!body) return;
+    box.disabled = true;
+    api.postMessage(body).then(() => api.loadMessages()).then(() => renderChat()).catch(err => { box.disabled = false; toast(err.message, true); });
+    return;
+  }
   if (e.target.id !== 'loginForm') return;
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Signing in…';
   run(() => api.signIn(loginEmail(document.getElementById('lEmail').value), document.getElementById('lPw').value))
     .then(ok => { if (ok) { document.getElementById('toast').innerHTML = ''; state.tab = 'schedule'; render(); } else { btn.disabled = false; btn.textContent = 'Sign in'; } });
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') $modal.innerHTML = ''; });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $modal.innerHTML = '';
+  if (e.target.id === 'chatBox' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); document.getElementById('chatForm').requestSubmit(); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'chatBox') { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px'; } });
 setInterval(() => { if (state.tab === 'schedule' && !$modal.innerHTML && $auth.hidden) render(); }, 60000);
+setInterval(async () => { if (!$auth.hidden || state.tab === 'chat') return; try { await api.loadMessages(); renderTabs(); } catch {} }, 45000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$modal.innerHTML && state.tab !== 'requests') refresh(); });
 
 try { await api.init(); } catch (e) { $auth.hidden = false; $auth.innerHTML = `<div class="card"><p class="gap">Could not start: ${esc(e.message)}</p></div>`; }
