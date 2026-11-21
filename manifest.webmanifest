@@ -1,6 +1,6 @@
 {
   "name": "LAX Landside Schedule",
-  "short_name": "LAX Schedule",
+  "short_name": "LAX Landside",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
