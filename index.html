@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="icon-v2-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="LAX Landside">
+<script>window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); window.__bip = e; window.dispatchEvent(new Event('bip-ready')); });</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -220,6 +221,15 @@
   .okc{color:#16693F;font-size:12px;margin-top:6px}
   .rform{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
   .preview{font-size:13px;margin-top:10px;color:var(--ink)}
+  #installBar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:25;max-width:460px;margin:0 auto;
+    background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 36px rgba(14,42,71,.22);padding:14px;display:flex;gap:12px;align-items:flex-start}
+  body.inapp #installBar{bottom:calc(72px + env(safe-area-inset-bottom))}
+  #installBar img{width:48px;height:48px;border-radius:11px;flex:none;border:1px solid var(--line)}
+  #installBar .ib-t{font-weight:700;font-size:14.5px;color:var(--navy)}
+  #installBar .ib-d{font-size:13px;color:#3E4C5E;margin-top:3px;line-height:1.45}
+  #installBar .ib-d svg{width:16px;height:16px;vertical-align:-3px;color:#007AFF}
+  #installBar .ib-a{display:flex;gap:8px;margin-top:10px}
+  #installBar .ib-a .btn{padding:7px 14px}
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:30}
   .toast.err{background:var(--red)}
 </style>
@@ -237,6 +247,7 @@
   <footer class="appfoot" id="appfoot"></footer>
 </div>
 <div id="modal"></div>
+<div id="installBar" hidden></div>
 <div id="toast"></div>
 
 <script type="module">
@@ -1381,6 +1392,45 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('input', e => { if (e.target.id === 'chatBox') { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px'; } });
 setInterval(() => { if (state.tab === 'schedule' && !$modal.innerHTML && $auth.hidden) render(); }, 60000);
+
+// ---------- "install the app" prompt (phones only) ---------------------
+const $ib = document.getElementById('installBar');
+const UA = navigator.userAgent;
+const isIOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/i.test(UA);
+const isInstalled = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const IB_KEY = 'landside-install-dismissed';
+const ibDismissed = () => { try { return Date.now() < (+localStorage.getItem(IB_KEY) || 0); } catch { return false; } };
+const SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>';
+function showInstall() {
+  if (isInstalled() || ibDismissed() || !(isIOS || isAndroid)) { $ib.hidden = true; return; }
+  const icon = `<img src="${document.querySelector('link[rel=apple-touch-icon]')?.getAttribute('href') || 'icon-192.png'}" alt="">`;
+  let body;
+  if (isAndroid && window.__bip) body = `<div class="ib-t">Install LAX Landside</div>
+      <div class="ib-d">Add the app to your home screen for one-tap access.</div>
+      <div class="ib-a"><button class="btn primary" id="ibInstall">Install</button><button class="btn" id="ibLater">Not now</button></div>`;
+  else if (isAndroid) body = `<div class="ib-t">Install LAX Landside</div>
+      <div class="ib-d">In Chrome, tap the <b>⋮</b> menu (top right), then <b>Install app</b> or <b>Add to Home screen</b>.</div>
+      <div class="ib-a"><button class="btn" id="ibLater">Got it</button></div>`;
+  else body = `<div class="ib-t">Add LAX Landside to your Home Screen</div>
+      <div class="ib-d">Tap the Share button ${SHARE_ICON} ${/CriOS|FxiOS|EdgiOS/.test(UA) ? '(in the address bar)' : 'at the bottom of Safari'}, then choose <b>Add to Home Screen</b>.</div>
+      <div class="ib-a"><button class="btn" id="ibLater">Got it</button></div>`;
+  $ib.innerHTML = icon + `<div style="flex:1">${body}</div>`;
+  $ib.hidden = false;
+}
+$ib.addEventListener('click', async e => {
+  if (e.target.id === 'ibInstall' && window.__bip) {
+    window.__bip.prompt();
+    try { const r = await window.__bip.userChoice; if (r.outcome === 'accepted') $ib.hidden = true; } catch {}
+    window.__bip = null; return;
+  }
+  if (e.target.id === 'ibLater') { try { localStorage.setItem(IB_KEY, Date.now() + 14 * 864e5); } catch {} $ib.hidden = true; }
+});
+window.addEventListener('bip-ready', showInstall);
+window.addEventListener('appinstalled', () => { $ib.hidden = true; });
+// keep the banner above the bottom tab bar once signed in
+new MutationObserver(() => document.body.classList.toggle('inapp', !$shell.hidden)).observe($shell, { attributes: true, attributeFilter: ['hidden'] });
+setTimeout(showInstall, 1200);
 setInterval(async () => { if (!$auth.hidden || state.tab === 'chat') return; try { await api.loadMessages(); renderTabs(); } catch {} }, 45000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$modal.innerHTML && state.tab !== 'requests') refresh(); });
 
