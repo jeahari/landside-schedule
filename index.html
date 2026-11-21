@@ -162,15 +162,19 @@
   input[type=checkbox]{width:auto}
   .form{max-width:360px;margin:30px auto}
   .form .f{margin-bottom:12px}
-  .alerts{border:1px solid var(--line,#dde3ea);border-radius:10px;padding:12px 14px;margin:0 0 18px}
-  .alerts-h{font-weight:700;margin-bottom:4px}
+  .acct-sec{border-top:1px solid var(--line,#e3e8ef);padding:16px 0 4px;margin-top:4px}
+  .acct-sec h3{font-size:15px;font-weight:700;color:var(--navy);margin:0 0 2px;letter-spacing:0;text-transform:none}
+  .acct-lead{margin:0 0 10px;font-size:12.5px}
+  .acct-out{padding-top:16px;margin-top:12px}
+  .acct-out .btn{width:100%}
   .alert-opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line,#eef1f5);cursor:pointer}
   .alert-opt input{width:20px;height:20px;margin-top:2px;flex:none}
   .alert-opt small{display:block;color:#5b6675;font-weight:400}
   .alert-opt b{color:#0f1b2d}
   .alerts-dev{border-top:1px solid var(--line,#eef1f5);padding-top:10px;margin-top:4px}
-  .alerts-dev>b{display:block;margin-bottom:6px}
-  .alerts-dev small{display:block;color:#5b6675;margin-top:6px}
+  .alerts-dev>b{display:block;margin:2px 0 8px;font-size:12px;font-weight:600;color:#5b6675;text-transform:uppercase;letter-spacing:.6px}
+  .alerts-dev small{display:block;color:#5b6675;margin-top:8px;font-size:12px;line-height:1.45}
+  .alerts-dev p{font-size:13px;margin:0 0 4px}
   .alerts-dev small.warn{color:#a15c00}
   .pushrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .pill.on{color:#137a3a;font-weight:600;font-size:13px;margin-right:4px}
@@ -1253,12 +1257,12 @@ function renderLogin() {
 function renderChangePw() {
   $auth.innerHTML = `<div class="card">
       ${LOGO}
-      <h1>Choose your password</h1>
-      <p class="sub">You signed in with the default password. Pick your own to continue.</p>
+      <h1>Create your password</h1>
+      <p class="sub"><span>You signed in with a temporary password.</span><span>Create a new password to continue.</span></p>
       <div class="f"><label for="newPw">New password</label><input type="password" id="newPw" autocomplete="new-password" minlength="8"></div>
-      <div class="f"><label for="newPw2">Type it again</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
+      <div class="f"><label for="newPw2">Confirm new password</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
       <button class="btn primary" id="setPw">Save and continue</button>
-      <p class="note">At least 8 characters. Use something different from your LAWA network password.</p>
+      <p class="note"><span>Use at least 8 characters.</span><span>Do not use your LAWA password.</span></p>
       <p class="note"><a href="#" id="signOutLink">Sign out</a></p>
     </div>`;
 }
@@ -1267,13 +1271,15 @@ function renderAccount() {
   $app.innerHTML = `<div class="form card" style="max-width:420px">
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><div class="avatar" style="width:44px;height:44px;font-size:15px">${esc(initials(name))}</div>
       <div><div style="font-weight:700;font-size:16px">${esc(name)}</div><div class="muted">${esc(state.me?.email || 'admin')} · ${esc(roleText())}</div></div></div>
-    ${state.me || isAdmin() ? '' : `<p class="gap">This login isn't linked to anyone on the roster. Ask the admin to set your email.</p>`}
+    ${state.me || isAdmin() ? '' : `<p class="gap">This account is not linked to a staff record. Please contact the administrator.</p>`}
     ${state.me ? alertsBox() : ''}
-    ${DEMO ? `<p class="muted">Password changes aren't available in the demo.</p>` : `
+    <section class="acct-sec"><h3>Change password</h3>
+    ${DEMO ? `<p class="muted">Password changes are not available in the demo.</p>` : `
+    <p class="muted acct-lead">Use at least 8 characters.</p>
     <div class="f"><label>New password</label><input type="password" id="newPw" autocomplete="new-password" minlength="8"></div>
-    <div class="f"><label>Type it again</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
-    <button class="btn primary" id="setPw">Change password</button>`}
-    <button class="btn danger" id="signOut2" style="margin-left:6px">Sign out</button></div>`;
+    <div class="f"><label>Confirm new password</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
+    <button class="btn primary" id="setPw">Update password</button>`}</section>
+    <section class="acct-sec acct-out"><button class="btn danger" id="signOut2">Sign out</button></section></div>`;
 }
 
 // ---- Email alerts (opt-in; everything starts off) ----
@@ -1283,23 +1289,23 @@ function alertsBox() {
       <span><b>${title}</b><small>${sub}</small></span></label>`;
   const any = p.decision || p.ot || p.approvals || p.chat;
   const dev = {
-    demo:    `<p class="muted">Notifications work in the live app, not in this demo.</p>`,
-    ios:     `<p class="gap">On iPhone, first add this app to your Home Screen (Share → Add to Home Screen), then open it from there and come back here.</p>`,
-    unsupported: `<p class="muted">This browser can't show notifications. Use Chrome on Android, Safari on iPhone (from the Home Screen), or Chrome/Edge on a computer.</p>`,
-    blocked: `<p class="gap">Notifications are blocked for this app. Allow them in your phone or browser settings, then reload.</p>`,
-    on:      `<div class="pushrow"><span class="pill on">● On for this device</span><button class="btn" id="pushTest">Send a test</button><button class="btn" id="pushOff">Turn off</button></div>`,
-    off:     `<div class="pushrow"><button class="btn primary" id="pushOn">Turn on for this device</button></div>`,
+    demo:    `<p class="muted">Notifications are available in the live app only.</p>`,
+    ios:     `<p class="gap">To receive notifications on iPhone, add this app to your Home Screen (Share → Add to Home Screen) and open it from there.</p>`,
+    unsupported: `<p class="muted">This browser does not support notifications. Use Chrome on Android, Safari on iPhone (from the Home Screen), or Chrome or Edge on a computer.</p>`,
+    blocked: `<p class="gap">Notifications are blocked for this app. Allow them in your device or browser settings, then reload the page.</p>`,
+    on:      `<div class="pushrow"><span class="pill on">● Enabled on this device</span><button class="btn" id="pushTest">Send test</button><button class="btn" id="pushOff">Disable</button></div>`,
+    off:     `<div class="pushrow"><button class="btn primary" id="pushOn">Enable on this device</button></div>`,
   }[state.push || 'off'];
-  return `<div class="alerts"><div class="alerts-h">Notifications</div>
-    <p class="muted" style="margin:0 0 8px">Off unless you turn them on. Pick only what you need.</p>
-    ${row('decision', 'My requests', 'When my time off or hours change is approved or denied')}
-    ${row('ot', 'OT opportunities', 'When an OT shift opens up for sign-up')}
-    ${sup ? row('approvals', 'Requests waiting for me', 'When someone I approve sends a request') : ''}
-    ${row('chat', 'Chat messages', 'When someone posts in the group chat')}
-    <div class="alerts-dev"><b>This device</b>${dev}
-      ${state.push === 'off' && any ? `<small class="warn">You picked alerts above, but this device isn't turned on yet, so nothing will arrive here.</small>` : ''}
-      <small>Turn it on on each phone or computer where you want alerts. Notifications never show leave codes.</small></div>
-  </div>`;
+  return `<section class="acct-sec alerts"><h3>Notifications</h3>
+    <p class="muted acct-lead">Choose which notifications you receive. All are off by default.</p>
+    ${row('decision', 'Request decisions', 'Your time-off or schedule-change request is approved or denied.')}
+    ${row('ot', 'Overtime openings', 'An overtime shift becomes available.')}
+    ${sup ? row('approvals', 'Pending approvals', 'A request requires your approval.') : ''}
+    ${row('chat', 'Group chat', 'A new message is posted in the group chat.')}
+    <div class="alerts-dev"><b>Device</b>${dev}
+      ${state.push === 'off' && any ? `<small class="warn">Notifications are selected but not enabled on this device.</small>` : ''}
+      <small>Enable on each phone or computer where you want to receive notifications. Leave codes are never shown in notifications.</small></div>
+  </section>`;
 }
 // ---- push notifications on this device ----
 const pushOK = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
@@ -1317,8 +1323,8 @@ async function pushStatus() {
 }
 async function pushOn() {
   const key = await api.pushKey();
-  if (!key) throw new Error('Notifications aren\'t set up on the server yet. Ask the admin.');
-  if (await Notification.requestPermission() !== 'granted') throw new Error('Notifications were not allowed');
+  if (!key) throw new Error('Notifications are not yet configured. Please contact the administrator.');
+  if (await Notification.requestPermission() !== 'granted') throw new Error('Notification permission was not granted.');
   const reg = await swReg(); await navigator.serviceWorker.ready;
   let sub = await reg.pushManager.getSubscription();
   if (sub && sub.options?.applicationServerKey) {        // key changed on the server → start fresh
@@ -1349,7 +1355,7 @@ async function loadPrefs() {
 document.addEventListener('change', async e => {
   const k = e.target.dataset?.pref; if (!k || !state.prefs) return;
   const next = { ...state.prefs, [k]: e.target.checked };
-  try { await api.setPrefs(next); state.prefs = next; toast(e.target.checked ? 'Alert on' : 'Alert off'); }
+  try { await api.setPrefs(next); state.prefs = next; toast(e.target.checked ? 'Notification enabled' : 'Notification disabled'); }
   catch (err) { e.target.checked = !e.target.checked; toast(err.message, true); }
 });
 
@@ -1419,7 +1425,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.pp !== undefined) { const n = +t.dataset.pp, cur = ppStart(todayStr()); state.pp = n === 0 ? cur : addDays(state.pp, n * 14 * state.span); if (state.pp < cur) state.pp = cur; return render(); }
   if (t.id === 'pushOn' || t.id === 'pushOff') {
     t.disabled = true;
-    try { await (t.id === 'pushOn' ? pushOn() : pushOff()); toast(t.id === 'pushOn' ? 'Notifications on for this device' : 'Notifications off for this device'); }
+    try { await (t.id === 'pushOn' ? pushOn() : pushOff()); toast(t.id === 'pushOn' ? 'Notifications enabled on this device' : 'Notifications disabled on this device'); }
     catch (err) { toast(err.message, true); }
     state.push = await pushStatus(); return render();
   }
