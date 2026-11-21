@@ -29,16 +29,21 @@
   .auth .card{width:100%;max-width:400px;padding:30px 28px 24px;border:0;border-radius:16px;box-shadow:0 18px 50px rgba(14,42,71,.22),0 2px 6px rgba(14,42,71,.08)}
   .auth .logo{display:block;height:38px;width:auto;margin:0 auto 18px}
   .auth h1{font-size:21px;font-weight:800;letter-spacing:-.2px;margin:0;text-align:center;color:var(--navy)}
-  .auth .sub{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 22px}
+  .auth .sub{text-align:center;color:var(--muted);font-size:13px;margin:6px 0 24px;line-height:1.4}
+  .auth .sub span,.auth .note span{display:block;text-wrap:balance}
   .auth .f{margin-bottom:14px}
   .auth label{font-size:12.5px;color:#3E4C5E}
   .auth input{padding:11px 12px;font-size:15px;border-radius:10px;border-color:#CFD7E1}
   .auth input:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(23,59,97,.15)}
   .auth .btn.primary{width:100%;padding:12px;font-size:15px;border-radius:10px;margin-top:4px}
-  .auth .note{font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.45;text-align:center}
+  .auth .note{font-size:12px;color:var(--muted);margin:16px 0 0;line-height:1.5;text-align:center}
   .auth .demo{background:#F4F7FB;border:1px solid #E1E8F0;border-radius:10px;padding:9px 11px;font-size:12px;color:#3E4C5E;margin-top:14px;line-height:1.5}
-  .auth .foot{margin-top:18px;max-width:400px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.5}
-  .auth .foot p,.appfoot p{margin:0 0 4px}
+  .auth .foot{margin-top:22px;max-width:360px;padding:0 8px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.5}
+  .auth .foot p,.appfoot p{margin:0 0 6px;text-wrap:balance}
+  .auth .foot b{color:#3E4C5E}
+  .auth .foot .support{margin-top:10px}
+  .auth .foot .support span,.auth .foot .support a{display:block}
+  .appfoot .support span::after{content:' –'}
   .auth .foot a,.appfoot a{color:var(--navy2);font-weight:600;text-decoration:none}
   .auth .foot a:hover,.appfoot a:hover{text-decoration:underline}
   .appfoot{max-width:1180px;margin:8px auto 0;padding:14px 16px 24px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.5}
@@ -157,6 +162,18 @@
   input[type=checkbox]{width:auto}
   .form{max-width:360px;margin:30px auto}
   .form .f{margin-bottom:12px}
+  .alerts{border:1px solid var(--line,#dde3ea);border-radius:10px;padding:12px 14px;margin:0 0 18px}
+  .alerts-h{font-weight:700;margin-bottom:4px}
+  .alert-opt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line,#eef1f5);cursor:pointer}
+  .alert-opt input{width:20px;height:20px;margin-top:2px;flex:none}
+  .alert-opt small{display:block;color:#5b6675;font-weight:400}
+  .alert-opt b{color:#0f1b2d}
+  .alerts-dev{border-top:1px solid var(--line,#eef1f5);padding-top:10px;margin-top:4px}
+  .alerts-dev>b{display:block;margin-bottom:6px}
+  .alerts-dev small{display:block;color:#5b6675;margin-top:6px}
+  .alerts-dev small.warn{color:#a15c00}
+  .pushrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pill.on{color:#137a3a;font-weight:600;font-size:13px;margin-right:4px}
   table.t{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:14px}
   .t th,.t td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
   .t th{background:#F7F9FB;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
@@ -584,6 +601,10 @@ const demoApi = {
     this.db.messages = this.db.messages.filter(x => x.id !== id); this.save();
   },
   async loadMessages() { state.messages = structuredClone(this.db.messages); },
+  async getPrefs() { return (this.db.notifyPrefs ||= {})[state.me?.id] || null; },
+  async markChatSeen() {},
+  async pushKey() { throw new Error('Notifications work in the live app, not the demo'); },
+  async setPrefs(p) { if (!state.me) throw new Error('Your login is not linked to anyone on the roster'); (this.db.notifyPrefs ||= {})[state.me.id] = p; this.save(); },
   async otPost(d, code, slots) {
     if (!canAssignOT()) throw new Error('Only an ASO III, the Chief or the admin can open OT');
     const ex = this.db.otPosts.find(x => x.work_date === d && x.shift_code === code && x.status === 'open');
@@ -664,7 +685,7 @@ const supaApi = {
     state.mustChange = !u?.user?.user_metadata?.pw_set;   // first sign-in with the default password
   },
   async signIn(email, password) { this.ok(await this.sb.auth.signInWithPassword({ email, password })); },
-  async signOut() { await this.sb.auth.signOut(); },
+  async signOut() { await pushOff(true).catch(() => {}); await this.sb.auth.signOut(); },
   async setException(staffId, date, change) {
     if (!change) return this.ok(await this.sb.from('exceptions').delete().eq('staff_id', staffId).eq('work_date', date));
     this.ok(await this.sb.from('exceptions').upsert({ staff_id: staffId, work_date: date, ...change }, { onConflict: 'staff_id,work_date' }));
@@ -696,8 +717,15 @@ const supaApi = {
   async loadMessages() {
     const rows = this.ok(await this.sb.from('messages').select('*').order('id', { ascending: false }).limit(300));
     state.messages = rows.reverse();
+    if (state.me) { const { data } = await this.sb.from('chat_seen').select('last_id').maybeSingle(); state.chatSeen = { key: myChatKey(), id: +(data?.last_id || 0) }; }
   },
   async postMessage(body) { this.ok(await this.sb.rpc('post_message', { p_body: body })); },
+  async getPrefs() { return this.ok(await this.sb.from('notify_prefs').select('decision,ot,approvals,chat').maybeSingle()); },
+  async setPrefs(p) { this.ok(await this.sb.rpc('set_notify_prefs', { p_decision: p.decision, p_ot: p.ot, p_approvals: p.approvals, p_chat: !!p.chat })); },
+  async markChatSeen(id) { if (state.me) await this.sb.rpc('mark_chat_seen', { p_id: id }); },
+  async pushKey() { return this.ok(await this.sb.rpc('push_public_key')); },
+  async savePushSub(j, device) { this.ok(await this.sb.rpc('save_push_sub', { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_device: device })); },
+  async deletePushSub(endpoint) { this.ok(await this.sb.rpc('delete_push_sub', { p_endpoint: endpoint })); },
   async deleteMessage(id) { this.ok(await this.sb.from('messages').delete().eq('id', id)); },
   async otPost(d, code, slots) { this.ok(await this.sb.rpc('ot_post', { p_date: d, p_code: code, p_slots: slots })); },
   async otUnpost(d, code) { this.ok(await this.sb.rpc('ot_unpost', { p_date: d, p_code: code })); },
@@ -1028,8 +1056,12 @@ function renderApprovals() {
 
 // ---------- group chat -----------------------------------------------
 const myChatKey = () => `landside-chat-seen-${state.me?.id || 'admin'}`;
-const lastSeen = () => { try { return +localStorage.getItem(myChatKey()) || 0; } catch { return 0; } };
-const markSeen = () => { const id = state.messages.at(-1)?.id || 0; try { localStorage.setItem(myChatKey(), id); } catch {} };
+const lastSeen = () => { let v = 0; try { v = +localStorage.getItem(myChatKey()) || 0; } catch {} return Math.max(v, state.chatSeen?.key === myChatKey() ? state.chatSeen.id : 0); };
+const markSeen = () => {
+  const id = state.messages.at(-1)?.id || 0; if (id <= lastSeen()) return;
+  try { localStorage.setItem(myChatKey(), id); } catch {}
+  state.chatSeen = { key: myChatKey(), id }; api.markChatSeen(id).catch(() => {});            // clears the red number on your other devices too
+};
 const isMine = m => (state.me && m.staff_id === state.me.id) || (!state.me && isAdmin() && !m.staff_id);
 const unreadCount = () => { const seen = lastSeen(); return state.tab === 'chat' ? 0 : state.messages.filter(m => m.id > seen && !isMine(m)).length; };
 function dayLabel(iso) {
@@ -1201,18 +1233,19 @@ function describeLog(l) {
 
 // ---------- sign-in screen (nothing else is shown until you sign in) ----
 const $auth = document.getElementById('auth'), $shell = document.getElementById('shell');
-const DISCLAIMER = `<p><b>Internal scheduling tool for LAX Landside Operations.</b> This app does not replace Workday. Each employee remains responsible for entering and approving their time in Workday.</p>
-  <p>App support: John Chang – <a href="mailto:jchang@lawa.org">jchang@lawa.org</a></p>`;
+const DISCLAIMER = `<p><b>Internal scheduling tool for LAX Landside Operations.</b></p>
+  <p>This app does not replace Workday. Each employee is responsible for entering and approving their time in Workday.</p>
+  <p class="support"><span>App support: John Chang</span> <a href="mailto:jchang@lawa.org">jchang@lawa.org</a></p>`;
 const LOGO = `<img class="logo" src="lawa-logo.png" alt="LAWA | LAX" onerror="this.remove()">`;
 function renderLogin() {
   $auth.innerHTML = `<form class="card" id="loginForm" autocomplete="on">
       ${LOGO}
       <h1>LAX Landside Schedule</h1>
-      <p class="sub">Los Angeles International Airport · Landside Operations</p>
+      <p class="sub"><span>Los Angeles International Airport</span><span>Landside Operations</span></p>
       <div class="f"><label for="lEmail">LAWA email or ID</label><input type="text" id="lEmail" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="jchang" required></div>
       <div class="f"><label for="lPw">Password</label><input type="password" id="lPw" autocomplete="current-password" required></div>
       <button class="btn primary" type="submit">Sign in</button>
-      <p class="note">Accounts are set up by the admin. Please don't reuse your LAWA network password here.</p>
+      <p class="note"><span>Accounts are set up by the admin.</span><span>Don't reuse your LAWA password here.</span></p>
     </form>
     <div class="foot">${DISCLAIMER}</div>`;
   setTimeout(() => document.getElementById('lEmail')?.focus(), 30);
@@ -1235,12 +1268,90 @@ function renderAccount() {
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><div class="avatar" style="width:44px;height:44px;font-size:15px">${esc(initials(name))}</div>
       <div><div style="font-weight:700;font-size:16px">${esc(name)}</div><div class="muted">${esc(state.me?.email || 'admin')} · ${esc(roleText())}</div></div></div>
     ${state.me || isAdmin() ? '' : `<p class="gap">This login isn't linked to anyone on the roster. Ask the admin to set your email.</p>`}
+    ${state.me ? alertsBox() : ''}
     ${DEMO ? `<p class="muted">Password changes aren't available in the demo.</p>` : `
     <div class="f"><label>New password</label><input type="password" id="newPw" autocomplete="new-password" minlength="8"></div>
     <div class="f"><label>Type it again</label><input type="password" id="newPw2" autocomplete="new-password" minlength="8"></div>
     <button class="btn primary" id="setPw">Change password</button>`}
     <button class="btn danger" id="signOut2" style="margin-left:6px">Sign out</button></div>`;
 }
+
+// ---- Email alerts (opt-in; everything starts off) ----
+function alertsBox() {
+  const p = state.prefs || {}, sup = levelOf(state.me) >= 2;
+  const row = (k, title, sub) => `<label class="alert-opt"><input type="checkbox" data-pref="${k}" ${p[k] ? 'checked' : ''} ${state.prefs ? '' : 'disabled'}>
+      <span><b>${title}</b><small>${sub}</small></span></label>`;
+  const any = p.decision || p.ot || p.approvals || p.chat;
+  const dev = {
+    demo:    `<p class="muted">Notifications work in the live app, not in this demo.</p>`,
+    ios:     `<p class="gap">On iPhone, first add this app to your Home Screen (Share → Add to Home Screen), then open it from there and come back here.</p>`,
+    unsupported: `<p class="muted">This browser can't show notifications. Use Chrome on Android, Safari on iPhone (from the Home Screen), or Chrome/Edge on a computer.</p>`,
+    blocked: `<p class="gap">Notifications are blocked for this app. Allow them in your phone or browser settings, then reload.</p>`,
+    on:      `<div class="pushrow"><span class="pill on">● On for this device</span><button class="btn" id="pushTest">Send a test</button><button class="btn" id="pushOff">Turn off</button></div>`,
+    off:     `<div class="pushrow"><button class="btn primary" id="pushOn">Turn on for this device</button></div>`,
+  }[state.push || 'off'];
+  return `<div class="alerts"><div class="alerts-h">Notifications</div>
+    <p class="muted" style="margin:0 0 8px">Off unless you turn them on. Pick only what you need.</p>
+    ${row('decision', 'My requests', 'When my time off or hours change is approved or denied')}
+    ${row('ot', 'OT opportunities', 'When an OT shift opens up for sign-up')}
+    ${sup ? row('approvals', 'Requests waiting for me', 'When someone I approve sends a request') : ''}
+    ${row('chat', 'Chat messages', 'When someone posts in the group chat')}
+    <div class="alerts-dev"><b>This device</b>${dev}
+      ${state.push === 'off' && any ? `<small class="warn">You picked alerts above, but this device isn't turned on yet, so nothing will arrive here.</small>` : ''}
+      <small>Turn it on on each phone or computer where you want alerts. Notifications never show leave codes.</small></div>
+  </div>`;
+}
+// ---- push notifications on this device ----
+const pushOK = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const b64ToBytes = b => { const s = atob((b + '='.repeat((4 - b.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); };
+const deviceName = () => /iPhone|iPad/.test(navigator.userAgent) ? 'iPhone/iPad' : /Android/.test(navigator.userAgent) ? 'Android'
+  : /Windows/.test(navigator.userAgent) ? 'Windows' : /Mac/.test(navigator.userAgent) ? 'Mac' : 'Other';
+async function swReg() { return navigator.serviceWorker.register('sw.js'); }
+async function pushStatus() {
+  if (DEMO) return 'demo';
+  if (isIOS && !isInstalled()) return 'ios';
+  if (!pushOK()) return 'unsupported';
+  if (Notification.permission === 'denied') return 'blocked';
+  try { const r = await navigator.serviceWorker.getRegistration(); const sub = r && await r.pushManager.getSubscription();
+        return sub && Notification.permission === 'granted' ? 'on' : 'off'; } catch { return 'off'; }
+}
+async function pushOn() {
+  const key = await api.pushKey();
+  if (!key) throw new Error('Notifications aren\'t set up on the server yet. Ask the admin.');
+  if (await Notification.requestPermission() !== 'granted') throw new Error('Notifications were not allowed');
+  const reg = await swReg(); await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && sub.options?.applicationServerKey) {        // key changed on the server → start fresh
+    const a = new Uint8Array(sub.options.applicationServerKey), b = b64ToBytes(key);
+    if (a.length !== b.length || a.some((x, i) => x !== b[i])) { await sub.unsubscribe(); sub = null; }
+  }
+  sub ||= await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(key) });
+  await api.savePushSub(sub.toJSON(), deviceName());
+}
+async function pushOff(quiet) {
+  if (DEMO || !pushOK()) return;
+  const r = await navigator.serviceWorker.getRegistration(); const sub = r && await r.pushManager.getSubscription();
+  if (!sub) return;
+  try { await api.deletePushSub(sub.endpoint); } catch (e) { if (!quiet) throw e; }
+  await sub.unsubscribe();
+}
+async function pushTest() {
+  const r = await navigator.serviceWorker.getRegistration();
+  await r.showNotification('LAX Landside', { body: 'Notifications are working on this device.', icon: 'icon-v2-192.png', tag: 'test' });
+}
+async function loadPrefs() {
+  if (!state.me) return;
+  try { state.prefs = { decision: false, ot: false, approvals: false, chat: false, ...(await api.getPrefs() || {}) }; }
+  catch { state.prefs = null; }
+  state.push = await pushStatus();
+  if (state.tab === 'account') render();
+}
+document.addEventListener('change', async e => {
+  const k = e.target.dataset?.pref; if (!k || !state.prefs) return;
+  const next = { ...state.prefs, [k]: e.target.checked };
+  try { await api.setPrefs(next); state.prefs = next; toast(e.target.checked ? 'Alert on' : 'Alert off'); }
+  catch (err) { e.target.checked = !e.target.checked; toast(err.message, true); }
+});
 
 function render() {
   const authed = DEMO ? state.signedIn : state.loggedIn && state.signedIn;
@@ -1277,7 +1388,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.set) return applyEdit(t.dataset.set);
   if (t.dataset.custom) { document.getElementById('customRow').style.display = 'flex'; document.getElementById('customCode').focus(); return; }
   if (t.dataset.setcustom) { const c = document.getElementById('customCode').value.trim().toUpperCase(); if (c) applyEdit('L:' + c); return; }
-  if (t.dataset.tab) { state.tab = t.dataset.tab; chatPolling(t.dataset.tab === 'chat'); if (t.dataset.tab === 'chat') { try { await api.loadMessages(); } catch {} } if (t.dataset.tab === 'admin') await api.loadLog(); return render(); }
+  if (t.dataset.tab) { state.tab = t.dataset.tab; chatPolling(t.dataset.tab === 'chat'); if (t.dataset.tab === 'chat') { try { await api.loadMessages(); } catch {} } if (t.dataset.tab === 'admin') await api.loadLog(); if (t.dataset.tab === 'account') { state.prefs = null; loadPrefs(); } return render(); }
   if (t.dataset.kind) { state.draft.kind = t.dataset.kind; return render(); }
   if (t.id === 'resetReq') { state.draft = newDraft(); return render(); }
   if (t.id === 'sendReq') {
@@ -1306,6 +1417,13 @@ document.addEventListener('click', async e => {
   if (t.dataset.decide) { const [id, a] = t.dataset.decide.split('|'); return run(() => api.decideRequest(id, a === '1'), a === '1' ? 'Approved' : 'Denied'); }
   if (t.dataset.span) { state.span = +t.dataset.span; return render(); }
   if (t.dataset.pp !== undefined) { const n = +t.dataset.pp, cur = ppStart(todayStr()); state.pp = n === 0 ? cur : addDays(state.pp, n * 14 * state.span); if (state.pp < cur) state.pp = cur; return render(); }
+  if (t.id === 'pushOn' || t.id === 'pushOff') {
+    t.disabled = true;
+    try { await (t.id === 'pushOn' ? pushOn() : pushOff()); toast(t.id === 'pushOn' ? 'Notifications on for this device' : 'Notifications off for this device'); }
+    catch (err) { toast(err.message, true); }
+    state.push = await pushStatus(); return render();
+  }
+  if (t.id === 'pushTest') { try { await pushTest(); } catch (err) { toast(err.message, true); } return; }
   if (t.id === 'signOut' || t.id === 'signOut2') return run(() => api.signOut(), 'Signed out');
   if (t.id === 'setPw') {
     const pw = document.getElementById('newPw').value, pw2 = document.getElementById('newPw2');
@@ -1434,6 +1552,16 @@ setTimeout(showInstall, 1200);
 setInterval(async () => { if (!$auth.hidden || state.tab === 'chat') return; try { await api.loadMessages(); renderTabs(); } catch {} }, 45000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$modal.innerHTML && state.tab !== 'requests') refresh(); });
 
+{ const q = new URLSearchParams(location.search).get('tab');
+  if (q) { state.tab = q; if (q === 'account') loadPrefs(); history.replaceState(null, '', location.pathname); } }
+if (!DEMO && pushOK()) {
+  swReg().catch(() => {});
+  navigator.serviceWorker.addEventListener('message', async e => {
+    if (e.data?.type !== 'push' || !$auth.hidden) return;
+    if (e.data.kind === 'chat') { try { await api.loadMessages(); } catch {} state.tab === 'chat' ? renderChat() : renderTabs(); }
+    else if (!$modal.innerHTML && state.tab !== 'requests') refresh();
+  });
+}
 try { await api.init(); } catch (e) { $auth.hidden = false; $auth.innerHTML = `<div class="card"><p class="gap">Could not start: ${esc(e.message)}</p></div>`; }
 await refresh();
 </script>
